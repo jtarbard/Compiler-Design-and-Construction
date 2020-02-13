@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <vector>
 using namespace std;
 
 class Token {
@@ -21,7 +21,7 @@ class Token {
 };
 
 class Lexer {
-    int stream();
+    vector<char> stream;
 public:
     Lexer(char *arg);
     Token getNextToken();

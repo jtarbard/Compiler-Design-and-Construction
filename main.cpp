@@ -11,8 +11,8 @@ int main(int argc, char* argv[]){
         Lexer lexer(argv[1]);
     }
     else{
-        cerr << "File argument not provided.";
-        exit(1);   // call system to stop
+        cerr << "Error Occurred: File argument not provided.";
+        exit(1);
     }
 
     return 0;
