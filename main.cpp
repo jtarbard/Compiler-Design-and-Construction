@@ -9,7 +9,6 @@ int main(int argc, char* argv[]){
 
     if(argc == 2) {
         Lexer lexer(argv[1]);
-        lexer.getNextToken();
     }
     else{
         cerr << "Error Occurred: File argument not provided.";
