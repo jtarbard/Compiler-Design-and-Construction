@@ -13,11 +13,11 @@ using namespace std;
 
 class Token {
 public:
-    enum tokenType {Keyword, Symbol, Identifier, Integer, String, Boolean};
-    void set_lexeme(string str);
-    void set_type(tokenType type);
-    string get_lexeme();
-    tokenType get_type();
+    enum tokenType {Keyword, Identifier, Symbol, Integer, String, Boolean};
+    void setLexeme(string str);
+    void setType(tokenType type);
+    string getLexeme();
+    tokenType getType();
 
 private:
     tokenType type;

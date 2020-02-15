@@ -1,0 +1,7 @@
+// Comment test
+class Test {
+    /** Comment test */
+    int x = 404;
+    string y = "false";
+    boolean z = true;
+}

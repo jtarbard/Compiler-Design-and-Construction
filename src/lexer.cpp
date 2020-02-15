@@ -4,19 +4,19 @@
 
 #include "lexer.h"
 
-void Token::set_lexeme(string str) {
+void Token::setLexeme(string str) {
     this->lexeme = str;
 }
 
-string Token::get_lexeme() {
+string Token::getLexeme() {
     return this->lexeme;
 }
 
-void Token::set_type(Token::tokenType type) {
+void Token::setType(Token::tokenType type) {
     this->type = type;
 }
 
-Token::tokenType Token::get_type() {
+Token::tokenType Token::getType() {
     return this->type;
 }
 
@@ -53,19 +53,19 @@ void Lexer::generate_tokens(){
             for (auto itr = sItr; itr != stream.end(); itr++) {
                 //end of alphanumeric
                 if (!(isalpha(*itr) != 0 || isdigit(*itr) != 0)) {
-                    token.set_type(Token::Identifier);
+                    token.setType(Token::Identifier);
                     //if keyword or boolean overwrite
                     if (str.find_first_of("0123456789") == string::npos) {
                         for (int i = 0; i < keywordCount; i++) {
                             if (str.compare(keywords[i]) == 0) {
-                                token.set_type(Token::Keyword);
+                                token.setType(Token::Keyword);
                             }
                             else if(str.compare("true") == 0 || str.compare("false") == 0){
-                                token.set_type(Token::Boolean);
+                                token.setType(Token::Boolean);
                             }
                         }
                     }
-                    token.set_lexeme(str);
+                    token.setLexeme(str);
                     tokens.push_back(token);
                     str.erase();
                     sItr = --itr;
@@ -83,9 +83,9 @@ void Lexer::generate_tokens(){
                 //end of integer
                 if(isdigit(*itr) == 0){
                     //set lexeme
-                    token.set_lexeme(str);
+                    token.setLexeme(str);
                     //set type
-                    token.set_type(Token::Integer);
+                    token.setType(Token::Integer);
                     //store token
                     tokens.push_back(token);
                     //update iterator
@@ -131,9 +131,9 @@ void Lexer::generate_tokens(){
                         sItr++;
                     }
                     //set type
-                    token.set_type(Token::String);
+                    token.setType(Token::String);
                     //set lexeme
-                    token.set_lexeme(str);
+                    token.setLexeme(str);
                     //
                     tokens.push_back(token);
                     str.erase();
@@ -142,9 +142,9 @@ void Lexer::generate_tokens(){
                 //symbol
                 else{
                     //set lexeme
-                    token.set_lexeme(string (1,*sItr));
+                    token.setLexeme(string (1,*sItr));
                     //set type
-                    token.set_type(Token::Symbol);
+                    token.setType(Token::Symbol);
                     //store token
                     tokens.push_back(token);
                 }
