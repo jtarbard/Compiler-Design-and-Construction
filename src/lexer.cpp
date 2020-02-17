@@ -21,17 +21,12 @@ Token::tokenType Token::getType() {
 }
 
 Lexer::Lexer(char *arg) {
-    ifstream file;
+    file;
     file.open(arg);
 
     if(file){
-        char c;
-        while (file >> noskipws >> c) {
-            stream.push_back(c);
-        }
-        file.close();
-
-        generate_tokens();
+        scanner();
+        tokenizer();
     }
     else{ //file invalid
         cerr << "Error Occurred: File could not be opened." << endl;
@@ -39,116 +34,108 @@ Lexer::Lexer(char *arg) {
     }
 }
 
-void Lexer::generate_tokens(){
+void Lexer::scanner(){
+    char c;
+    while (file >> noskipws >> c) {
+        stream.push_back(c);
+    }
+    stream.push_back(EOF);
+}
+
+void Lexer::tokenizer(){
     Token token;
     string str;
 
     for(sItr = stream.begin(); sItr != stream.end(); sItr++) {
         //whitespace
-        if (isspace(*sItr) != 0) {
-            //consume
-        }
-        //character
-        else if (isalpha(*sItr) != 0) {
-            for (auto itr = sItr; itr != stream.end(); itr++) {
-                //end of alphanumeric
-                if (!(isalpha(*itr) != 0 || isdigit(*itr) != 0)) {
-                    token.setType(Token::Identifier);
-                    //if keyword or boolean overwrite
-                    if (str.find_first_of("0123456789") == string::npos) {
-                        for (int i = 0; i < keywordCount; i++) {
-                            if (str.compare(keywords[i]) == 0) {
-                                token.setType(Token::Keyword);
-                            }
-                            else if(str.compare("true") == 0 || str.compare("false") == 0){
-                                token.setType(Token::Boolean);
-                            }
-                        }
+        if (isspace(*sItr) != 0) {} //consume
+        //alphabetical character
+        else if (isalpha(*sItr) != 0){
+            //iterate while alphanumeric
+            for(; sItr != stream.end() && (isalpha(*sItr)||isalnum(*sItr)); sItr++){
+                str.push_back(*sItr);
+            }
+            sItr--; //needed to prevent over-consumption
+            token.setLexeme(str);
+            //determine type
+            if (!str.find_first_of("0123456789") == string::npos) { //alphanumeric
+                token.setType(Token::Identifier);
+            }
+            else if (str.compare("true") == 0 || str.compare("false") == 0) {
+                token.setType(Token::Boolean);
+            }
+            else { //alphabetic
+                token.setType(Token::Identifier); //default to id
+                for (int i = 0; i < keywordCount; i++) {
+                    if (str.compare(keywords[i]) == 0) {
+                        token.setType(Token::Keyword); //update to keyword
+                        break;
                     }
-                    token.setLexeme(str);
-                    tokens.push_back(token);
-                    str.erase();
-                    sItr = --itr;
-                    break;
-                }
-                //add character
-                else{
-                    str.push_back(*itr);
                 }
             }
+            //clean up
+            str.erase();
+            //store token
+            tokens.push_back(token);
         }
         //integer
         else if(isdigit(*sItr) != 0){
-            for(auto itr = sItr; itr != stream.end(); itr++){
-                //end of integer
-                if(isdigit(*itr) == 0){
-                    //set lexeme
-                    token.setLexeme(str);
-                    //set type
-                    token.setType(Token::Integer);
-                    //store token
-                    tokens.push_back(token);
-                    //update iterator
-                    str.erase();
-                    sItr = itr;
-                    break;
-                }
-                //add digit
-                else{
-                    str.push_back(*itr);
-                }
+            for(; sItr != stream.end() && isalnum(*sItr); sItr++){
+                str.push_back(*sItr);
             }
+            sItr--;
+            //set token info
+            token.setType(Token::Integer);
+            token.setLexeme(str);
+            tokens.push_back(token);
+            str.erase();
         }
         //symbol
         else if(ispunct(*sItr) != 0){
             auto itr = sItr;
             itr++;
-            if(itr != stream.end()){
-                //single line comment
-                if(*sItr == '/' && *itr == '/'){
-                    while(*itr != '\n' && *itr != '\r' && itr != stream.end()){
-                        itr++; //consume
-                    }
-                    sItr = itr;
-                }
-                //multi line or api comment
-                else if(*sItr == '/' && *itr == '*'){
-                    while(itr != stream.end()){
-                        if(*itr == '*' && itr++ != stream.end()){
-                            if(*itr == '/'){
-                                break;
-                            }
-                        }
-                        itr++; //consume
-                    }
-                    sItr = itr;
-                }
-                //string
-                else if(*sItr == '"'){
-                    sItr++;
-                    while(sItr != stream.end() && *sItr != '"'){
-                        str.push_back(*sItr);
-                        sItr++;
-                    }
-                    //set type
-                    token.setType(Token::String);
-                    //set lexeme
-                    token.setLexeme(str);
-                    //
-                    tokens.push_back(token);
-                    str.erase();
-
-                }
-                //symbol
-                else{
-                    //set lexeme
-                    token.setLexeme(string (1,*sItr));
-                    //set type
-                    token.setType(Token::Symbol);
-                    //store token
-                    tokens.push_back(token);
+            if(*sItr == '/' && *itr == '/'){
+                while(*sItr != '\n' && *sItr != '\r' && sItr != stream.end() && *sItr != EOF ){
+                    sItr++; //consume
                 }
             }
+            else if(*sItr == '/' && *itr == '*'){
+                while(((*sItr != '*' || *itr != '/') && itr != stream.end() && *itr != EOF)){
+                    sItr++; //consume
+                    itr++; //consume
+                }
+                sItr++; //needed to consume end /
+            }
+            else if(*sItr == '\"'){
+                for(; itr != stream.end() && *itr != EOF && *itr != '\"'; itr++, sItr++){
+                    str.push_back(*itr);
+                }
+                sItr++; //consume end "
+                token.setLexeme(str);
+                token.setType(Token::String);
+                str.erase();
+                tokens.push_back(token);
+
+            }
+            //symbol
+            else{
+                //set lexeme
+                str.push_back(*sItr);
+                token.setLexeme(str);
+                str.erase();
+                //set type
+                token.setType(Token::Symbol);
+                //store token
+                tokens.push_back(token);
+            }
+        }
+        else if(*sItr == EOF){
+            token.setLexeme("");
+            token.setType(Token::eof);
+            tokens.push_back(token);
+        }
+        else if(*sItr == '\n'){
+            lineNum++;
         }
         //error
         else{
@@ -161,16 +148,21 @@ void Lexer::generate_tokens(){
 }
 
 Token Lexer::getNextToken() {
-    Token token = *tCursor;
-    tCursor++;
+    Token token;
+    if (!tokens.empty()){
+        token = *tCursor;
+        tCursor++;
+    }
     return token;
 }
 
 Token Lexer::peekNextToken() {
     Token token;
-    if(tCursor++ != tokens.end()){
-        token = *tCursor;
-        tCursor--;
+    if (!tokens.empty()) {
+        if (tCursor++ != tokens.end()) {
+            token = *tCursor;
+            tCursor--;
+        }
     }
     return token;
 }

@@ -4,8 +4,8 @@
 #include "catch2/catch.hpp"
 #include "lexer.h"
 
-TEST_CASE("Tokenizer recognises all types.", "[Token]"){
-    Lexer lexer("./tests/samples/types.jack");
+TEST_CASE("Tokenizer recognises types.", "[Tokenizer]"){
+    Lexer lexer((char*)"/home/sc18jt/CLionProjects/comp2932/tests/samples/types.jack");
 
     Token token = lexer.getNextToken();
     REQUIRE(token.getLexeme() == "class");
@@ -20,31 +20,69 @@ TEST_CASE("Tokenizer recognises all types.", "[Token]"){
     REQUIRE(token.getType() == 2);
 
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "int");
+    REQUIRE(token.getType() == 0);
+
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "x");
+    REQUIRE(token.getType() == 1);
+
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "=");
+    REQUIRE(token.getType() == 2);
+
     token = lexer.getNextToken();
     REQUIRE(token.getLexeme() == "404");
     REQUIRE(token.getType() == 3);
 
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == ";");
+    REQUIRE(token.getType() == 2);
+
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "char");
+    REQUIRE(token.getType() == 0);
+
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "y");
+    REQUIRE(token.getType() == 1);
+
+    token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "=");
+    REQUIRE(token.getType() == 2);
+
     token = lexer.getNextToken();
     REQUIRE(token.getLexeme() == "false");
     REQUIRE(token.getType() == 4);
 
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == ";");
+    REQUIRE(token.getType() == 2);
+
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "boolean");
+    REQUIRE(token.getType() == 0);
+
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "z");
+    REQUIRE(token.getType() == 1);
+
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "=");
+    REQUIRE(token.getType() == 2);
+
     token = lexer.getNextToken();
     REQUIRE(token.getLexeme() == "true");
     REQUIRE(token.getType() == 5);
 
 }
 
-TEST_CASE("Tokenizer getNextToken() produce expected tokens.", "[Token]"){
-    Lexer lexer("./tests/samples/main.jack");
+TEST_CASE("Tokenizer handles unexpected EOF.", "[Tokenizer]"){
+    Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/tests/samples/eof.jack");
+}
+
+TEST_CASE("Lexer getNextToken() produces expected tokens.", "[Lexer]"){
+    Lexer lexer((char*)"tests/samples/average.jack");
 
     Token token = lexer.getNextToken();
     REQUIRE(token.getLexeme() == "class");
@@ -83,8 +121,8 @@ TEST_CASE("Tokenizer getNextToken() produce expected tokens.", "[Token]"){
     REQUIRE(token.getType() == 2);
 }
 
-TEST_CASE("Tokenizer peekNextToken() produce expected tokens.", "[Token]"){
-    Lexer lexer("./tests/samples/main.jack");
+TEST_CASE("Lexer peekNextToken() produce expected tokens.", "[Lexer]"){
+    Lexer lexer((char*)"tests/samples/average.jack");
 
     Token token = lexer.peekNextToken();
     REQUIRE(token.getLexeme() == "Main");

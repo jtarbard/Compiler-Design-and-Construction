@@ -2,6 +2,6 @@
 class Test {
     /** Comment test */
     int x = 404;
-    string y = "false";
+    char y = "false";
     boolean z = true;
 }
