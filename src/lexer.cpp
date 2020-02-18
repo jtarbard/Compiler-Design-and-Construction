@@ -20,13 +20,24 @@ Token::tokenType Token::getType() {
     return this->type;
 }
 
+/**
+ * Constructs the Lexer object initialising attributes file,
+ * stream and tokens.
+ *
+ * Initialises the file attribute and tries to open the file.
+ * Calls scanner method to populate stream and then calls
+ * tokenizer to populate tokens.
+ *
+ * @param arg   The filepath to the jack program to be compiled.
+ */
+
 Lexer::Lexer(char *arg) {
-    file;
     file.open(arg);
 
     if(file){
         scanner();
         tokenizer();
+        tCursor = tokens.begin();
     }
     else{ //file invalid
         cerr << "Error Occurred: File could not be opened." << endl;
@@ -34,135 +45,166 @@ Lexer::Lexer(char *arg) {
     }
 }
 
+/**
+ * Populates Lexer's stream vector with file contents.
+ *
+ * Reads Lexer's file per character pushing each character
+ * to the back of the Lexer's stream vector.
+ */
 void Lexer::scanner(){
     char c;
     while (file >> noskipws >> c) {
         stream.push_back(c);
     }
-    stream.push_back(EOF);
+    stream.push_back(EOF); //push EOF as it's not captured by while
 }
 
+/**
+ * Generates tokens from the stream vector and stores them
+ * in the token vector.
+ *
+ * Iterates over stream vector categorising the iterate value
+ * into one of five states: whitespace, alphabetical,
+ * numerical, symbol, or end of file. Stream is then handled
+ * internally until a delimiter is reached and the token lexeme
+ * and type can be set. Tokens are then pushed to the back of
+ * the tokens vector.
+ */
 void Lexer::tokenizer(){
+    vector<char>::iterator sItr;
+    int lnNum = 1;
+
     Token token;
     string str;
+    Token::tokenType type;
 
     for(sItr = stream.begin(); sItr != stream.end(); sItr++) {
-        //whitespace
-        if (isspace(*sItr) != 0) {} //consume
-        //alphabetical character
+
+        //STATE: Whitespace
+        if (isspace(*sItr) != 0) {
+            //if newline increment line number
+            if(*sItr == '\n' || *sItr == '\r'){lnNum++;}
+        }
+
+        //STATE: Alphabetical
         else if (isalpha(*sItr) != 0){
-            //iterate while alphanumeric
+            //add to string while alphanumerical
             for(; sItr != stream.end() && (isalpha(*sItr)||isalnum(*sItr)); sItr++){
                 str.push_back(*sItr);
             }
-            sItr--; //needed to prevent over-consumption
-            token.setLexeme(str);
-            //determine type
-            if (!str.find_first_of("0123456789") == string::npos) { //alphanumeric
-                token.setType(Token::Identifier);
-            }
-            else if (str.compare("true") == 0 || str.compare("false") == 0) {
-                token.setType(Token::Boolean);
-            }
-            else { //alphabetic
-                token.setType(Token::Identifier); //default to id
-                for (int i = 0; i < keywordCount; i++) {
-                    if (str.compare(keywords[i]) == 0) {
-                        token.setType(Token::Keyword); //update to keyword
-                        break;
-                    }
+            sItr--; //prevent over-consumption
+            type = Token::Identifier;
+
+            //check if keyword
+            for (int i = 0; i < keywordsSize; i++) {
+                if (str.compare(keywords[i]) == 0) {
+                    type = Token::Keyword;
+                    break;
                 }
             }
-            //clean up
-            str.erase();
-            //store token
-            tokens.push_back(token);
         }
-        //integer
+
+        //STATE: Numerical
         else if(isdigit(*sItr) != 0){
+            //add to string while numerical
             for(; sItr != stream.end() && isalnum(*sItr); sItr++){
                 str.push_back(*sItr);
             }
-            sItr--;
-            //set token info
-            token.setType(Token::Integer);
-            token.setLexeme(str);
-            tokens.push_back(token);
-            str.erase();
+            sItr--; //prevent over-consumption
+            type = Token::Integer;
         }
-        //symbol
+
+        //STATE: Symbol
         else if(ispunct(*sItr) != 0){
             auto itr = sItr;
             itr++;
+
+            //STATE: Single-line comment
             if(*sItr == '/' && *itr == '/'){
-                while(*sItr != '\n' && *sItr != '\r' && sItr != stream.end() && *sItr != EOF ){
-                    sItr++; //consume
-                }
+                //consume while no new line
+                for(;*sItr != '\n' && *sItr != '\r' && sItr != stream.end() && *sItr != EOF; sItr++){}
+                lnNum++;
             }
+
+            //STATE: Multi-line comment
             else if(*sItr == '/' && *itr == '*'){
-                while(((*sItr != '*' || *itr != '/') && itr != stream.end() && *itr != EOF)){
-                    sItr++; //consume
-                    itr++; //consume
+                //consume while no end of multi-line comment
+                for(;((*sItr != '*' || *itr != '/') && itr != stream.end() && *itr != EOF); sItr++, itr++){
+                    if(*sItr == '\n' || *sItr == '\r'){lnNum++;}
                 }
-                sItr++; //needed to consume end /
+                sItr++; //needed to consume end '/'
             }
+
+            //STATE: String
             else if(*sItr == '\"'){
+                //add to string while no end of comment
                 for(; itr != stream.end() && *itr != EOF && *itr != '\"'; itr++, sItr++){
                     str.push_back(*itr);
                 }
-                sItr++; //consume end "
-                token.setLexeme(str);
-                token.setType(Token::String);
-                str.erase();
-                tokens.push_back(token);
+                sItr++; //consume end '"'
+                type = Token::String;
 
             }
-            //symbol
+
+            //STATE: Symbol
             else{
-                //set lexeme
                 str.push_back(*sItr);
-                token.setLexeme(str);
-                str.erase();
-                //set type
-                token.setType(Token::Symbol);
-                //store token
-                tokens.push_back(token);
+                type = Token::Symbol;
             }
         }
+
+        //STATE: End of file
         else if(*sItr == EOF){
-            token.setLexeme("");
-            token.setType(Token::eof);
+            type = Token::eof;
+        }
+        //STATE: Error
+        else{
+            cerr << "Line: " << lnNum << " Error Occurred: Character of unsupported type." << endl;
+            cout << "Character: " << *sItr << endl;
+            exit(1);
+        }
+
+        //STATE: Final state - create token
+        if(!str.empty() || type == Token::eof){
+            //Lexeme - str
+            token.setLexeme(str);
+            str.erase(); //reset string
+            //Type - type
+            token.setType(type);
+            type = Token::Keyword; //reset type
+            //Push token
             tokens.push_back(token);
         }
-        else if(*sItr == '\n'){
-            lineNum++;
-        }
-        //error
-        else{
-            cerr << "Error Occurred: Character of unsupported type." << endl;
-            cout << "Character: " << *sItr << endl;
-        }
     }
-    //Tokenizing complete
-    tCursor = tokens.begin();
 }
 
+/**
+ * Returns the next token with consumption.
+ */
 Token Lexer::getNextToken() {
     Token token;
-    if (!tokens.empty()){
+    if(tCursor != tokens.end()){
         token = *tCursor;
         tCursor++;
+        return token;
     }
-    return token;
+    else{
+        cerr << "Error Occurred: No next token exists, reached end of token vector.";
+        exit(1);
+    }
 }
 
+/**
+ * Returns the next token without consumption.
+ */
 Token Lexer::peekNextToken() {
     Token token;
-    if (!tokens.empty()) {
-        if (tCursor++ != tokens.end()) {
-            token = *tCursor;
-            tCursor--;
-        }
+    if(tCursor != tokens.end()){
+        token = *tCursor;
+        return token;
     }
-    return token;
+    else{
+        cerr << "Error Occurred: No next token exists, reached end of token vector.";
+        exit(1);
+    }
 }

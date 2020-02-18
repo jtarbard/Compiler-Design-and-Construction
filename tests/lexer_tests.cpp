@@ -73,8 +73,7 @@ TEST_CASE("Tokenizer recognises types.", "[Tokenizer]"){
 
     token = lexer.getNextToken();
     REQUIRE(token.getLexeme() == "true");
-    REQUIRE(token.getType() == 5);
-
+    REQUIRE(token.getType() == 0);
 }
 
 TEST_CASE("Tokenizer handles unexpected EOF.", "[Tokenizer]"){
@@ -125,24 +124,38 @@ TEST_CASE("Lexer peekNextToken() produce expected tokens.", "[Lexer]"){
     Lexer lexer((char*)"tests/samples/average.jack");
 
     Token token = lexer.peekNextToken();
+    REQUIRE(token.getLexeme() == "class");
+    REQUIRE(token.getType() == 0);
+    token = lexer.getNextToken();
+
+
+    token = lexer.peekNextToken();
     REQUIRE(token.getLexeme() == "Main");
     REQUIRE(token.getType() == 1);
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "Main");
+    REQUIRE(token.getType() == 1);
 
     token = lexer.peekNextToken();
     REQUIRE(token.getLexeme() == "{");
     REQUIRE(token.getType() == 2);
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "{");
+    REQUIRE(token.getType() == 2);
 
     token = lexer.peekNextToken();
     REQUIRE(token.getLexeme() == "function");
     REQUIRE(token.getType() == 0);
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "function");
+    REQUIRE(token.getType() == 0);
 
     token = lexer.peekNextToken();
     REQUIRE(token.getLexeme() == "void");
     REQUIRE(token.getType() == 0);
     token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "void");
+    REQUIRE(token.getType() == 0);
 
     token = lexer.peekNextToken();
     REQUIRE(token.getLexeme() == "main");

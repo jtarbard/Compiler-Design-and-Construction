@@ -8,4 +8,4 @@ class Main {
    function void main() {
       /* Prints some text using the standard library. */
       int i = 10;
-      do Output.printString("Hello"
+      do Output.printString("Hello

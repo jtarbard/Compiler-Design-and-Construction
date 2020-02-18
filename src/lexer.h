@@ -13,7 +13,7 @@ using namespace std;
 
 class Token {
 public:
-    enum tokenType {Keyword, Identifier, Symbol, Integer, String, Boolean, eof};
+    enum tokenType {Keyword, Identifier, Symbol, Integer, String, eof};
     void setLexeme(string str);
     void setType(tokenType type);
     string getLexeme();
@@ -26,8 +26,6 @@ private:
 
 class Lexer {
     ifstream file;
-    int lineNum = 0;
-    const int keywordCount = 21;
     char const *keywords[21] = {
             "class","constructor","method","function", //program components
             "int","boolean","char","void", //primitive types
@@ -36,8 +34,9 @@ class Lexer {
             "true","false","null", //constant values
             "this" //object reference
     };
+    int const keywordsSize = 21;
+    //
     vector<char> stream;
-    vector<char>::iterator sItr;
     vector<Token> tokens;
     vector<Token>::iterator tCursor;
 
