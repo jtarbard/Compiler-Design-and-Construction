@@ -16,12 +16,15 @@ public:
     enum tokenType {Keyword, Identifier, Symbol, Integer, String, eof};
     void setLexeme(string str);
     void setType(tokenType type);
+    void setLine(int ln);
     string getLexeme();
     tokenType getType();
+    int getLine();
 
 private:
     tokenType type;
     string lexeme;
+    int line;
 };
 
 class Lexer {

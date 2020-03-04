@@ -20,6 +20,14 @@ Token::tokenType Token::getType() {
     return this->type;
 }
 
+void Token::setLine(int ln) {
+    this->line = ln;
+}
+
+int Token::getLine() {
+    return this->line;
+}
+
 /**
  * Constructs the Lexer object initialising attributes file,
  * stream and tokens.
@@ -172,6 +180,8 @@ void Lexer::tokenizer(){
             //Type - type
             token.setType(type);
             type = Token::Keyword; //reset type
+            //Line - int
+            token.setLine(lnNum);
             //Push token
             tokens.push_back(token);
         }
