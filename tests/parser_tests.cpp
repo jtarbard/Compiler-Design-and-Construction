@@ -5,7 +5,12 @@
 #include "lexer.h"
 #include "parser.h"
 
-TEST_CASE("Parser does not throw error on valid file."){
-Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/tests/samples/average.jack");
+TEST_CASE("Parser does not throw error on valid file - parser"){
+Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/tests/samples/parser.jack");
+Parser parser(&lexer);
+}
+
+TEST_CASE("Parser does not throw error on valid file - fracion"){
+Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/tests/samples/fraction.jack");
 Parser parser(&lexer);
 }
