@@ -33,11 +33,162 @@ void Parser::operand(){}
 void Parser::factor(){}
 void Parser::term(){}
 void Parser::arithmeticExpression(){}
-void Parser::relationalExpression(){}
-void Parser::expression(){}
-void Parser::returnStatement(){}
-void Parser::expressionList(){}
-void Parser::subroutineCall(){}
+
+/**
+ *
+ */
+void Parser::relationalExpression(){
+    cout << "relation expression";
+
+    token = lexer->getNextToken();
+}
+
+/**
+ *
+ * expression -> relationalExpression { ( & | | ) relationalExpression }
+ */
+void Parser::expression(){
+    cout << "expression\n";
+
+    token = lexer->getNextToken();
+    if(token.getLexeme() == "-" ||token.getLexeme() == "~"){
+        relationalExpression();
+    }
+    else if(token.getType() == Token::Integer || token.getType() == Token::Identifier || token.getType() == Token::String || token.getLexeme() == "true" || token.getLexeme() == "false" || token.getLexeme() == "null" || token.getLexeme() == "this") {
+        relationalExpression();
+    }
+    else{
+        error();
+    }
+
+    token = lexer->peekNextToken();
+    if(token.getLexeme() == "&" || token.getLexeme() == "|"){
+        if(token.getLexeme() == "-" ||token.getLexeme() == "~"){
+            relationalExpression();
+        }
+        else if(token.getType() == Token::Integer || token.getType() == Token::Identifier || token.getType() == Token::String || token.getLexeme() == "true" || token.getLexeme() == "false" || token.getLexeme() == "null" || token.getLexeme() == "this") {
+            relationalExpression();
+        }
+        else{
+            error();
+        }
+    }
+
+}
+
+/**
+ *
+ * returnStatemnt -> return [ expression ] ;
+ */
+void Parser::returnStatement(){
+    cout << "return statement\n";
+
+    token = lexer->getNextToken();
+    if(token.getLexeme() == "return"){
+
+    }
+    else{
+        error("'return'");
+    }
+
+    token = lexer->peekNextToken();
+    if(token.getLexeme() == "-" ||token.getLexeme() == "~"){
+        expression();
+    }
+    else if(token.getType() == Token::Integer || token.getType() == Token::Identifier || token.getType() == Token::String || token.getLexeme() == "true" || token.getLexeme() == "false" || token.getLexeme() == "null" || token.getLexeme() == "this") {
+        expression();
+    }
+
+    token = lexer->getNextToken();
+    if(token.getLexeme() == ";"){
+
+    }
+    else{
+        error("';'");
+    }
+}
+
+/**
+ * expressionList -> expression { , expression } | ε
+ */
+void Parser::expressionList(){
+    cout << "in expression list\n";
+
+    token = lexer->getNextToken();
+    if(token.getLexeme() == "-" ||token.getLexeme() == "~"){
+        expression();
+    }
+    else if(token.getType() == Token::Integer || token.getType() == Token::Identifier || token.getType() == Token::String || token.getLexeme() == "true" || token.getLexeme() == "false" || token.getLexeme() == "null" || token.getLexeme() == "this") {
+        expression();
+    }
+
+    token = lexer->peekNextToken();
+    while(token.getLexeme() == ","){
+        token = lexer->getNextToken();
+        token = lexer->getNextToken();
+        if(token.getLexeme() == "-" ||token.getLexeme() == "~"){
+            expression();
+        }
+        else if(token.getType() == Token::Integer || token.getType() == Token::Identifier || token.getType() == Token::String || token.getLexeme() == "true" || token.getLexeme() == "false" || token.getLexeme() == "null" || token.getLexeme() == "this") {
+            expression();
+        }
+        else{
+            error();
+        }
+        token = lexer->peekNextToken();
+    }
+}
+
+/**
+ *
+ * subroutineCall -> identifier [ . identifier ] ( expressionList )
+ */
+void Parser::subroutineCall(){
+    cout << "subroutine call\n";
+
+    token = lexer->getNextToken();
+    if(token.getType() == Token::Identifier){
+    }
+    else{
+        error("an identifier");
+    }
+
+    token = lexer->peekNextToken();
+    if(token.getLexeme() == "."){
+        token = lexer->getNextToken();
+        token = lexer->getNextToken();
+        if(token.getType() == Token::Identifier){
+
+        }
+    }
+
+    token = lexer->getNextToken();
+    if(token.getLexeme() == "("){
+
+    }
+    else{
+        error("')'");
+    }
+
+    token = lexer->getNextToken();
+    if(token.getLexeme() == "-" ||token.getLexeme() == "~"){
+        expression();
+    }
+    else if(token.getType() == Token::Integer || token.getType() == Token::Identifier || token.getType() == Token::String || token.getLexeme() == "true" || token.getLexeme() == "false" || token.getLexeme() == "null" || token.getLexeme() == "this") {
+        expression();
+    }
+    else{
+        error();
+    }
+
+    token = lexer->getNextToken();
+    if(token.getLexeme() == ")"){
+
+    }
+    else{
+        error("')'");
+    }
+}
 
 /**
  *
@@ -95,7 +246,7 @@ void Parser::letStatement(){
     token = lexer->peekNextToken();
     if(token.getLexeme() == "["){
         token = lexer->getNextToken();
-        token = lexer->getNextToken();
+        token = lexer->peekNextToken();
         //TODO: check logic
         if(token.getLexeme() == "-" ||token.getLexeme() == "~"){
             expression();
@@ -125,7 +276,7 @@ void Parser::letStatement(){
     }
 
     //TODO: check logic
-    token = lexer->getNextToken();
+    token = lexer->peekNextToken();
     if(token.getLexeme() == "-" ||token.getLexeme() == "~"){
         expression();
     }
