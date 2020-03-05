@@ -1,0 +1,14 @@
+// Comment test
+class Test {
+    /** Comment test */
+    field int a;
+
+    function void main() {
+        var int x;
+        let x = 404;
+        var char y;
+        let y = "false";
+        var boolean z;
+        let z = true;
+    }
+}

@@ -4,6 +4,7 @@
 
 #include "main.h"
 #include "lexer.h"
+#include "parser.h"
 using namespace std;
 
 #define release true
@@ -16,6 +17,7 @@ int main(int argc, char* argv[]){
     if(release) {
         if (argc == 2) {
             Lexer lexer(argv[1]);
+            Parser parser(&lexer);
         }
         else {
              cerr << "Error Occurred: File argument not provided." << endl;
