@@ -14,13 +14,8 @@ Parser::Parser(Lexer *parLexer) {
         classDeclare();
     }
     else{
-        error();
+        error("a claass delcaration");
     }
-}
-
-void Parser::error() {
-    cerr << "Error occurred on line " << token.getLine() << " at or near '" << token.getLexeme() << "'.";
-    exit(2);
 }
 
 void Parser::error(char* msg) {
@@ -48,7 +43,7 @@ void Parser::operand(){
 
             }
             else{
-                error();
+                error("an identifier");
             }
         }
     }
@@ -61,7 +56,7 @@ void Parser::operand(){
             expression();
         }
         else{
-            error();
+            error("an expression");
         }
     }
     else if(token.getLexeme() == "("){
@@ -73,7 +68,8 @@ void Parser::operand(){
             expressionList();
         }
         else{
-            error();
+            error("an expression/expression list");
+
         }
     }
     else if(token.getType() == Token::String){
@@ -92,7 +88,7 @@ void Parser::operand(){
 
     }
     else{
-        error();
+        error("an operand");
     }
 }
 
@@ -111,7 +107,7 @@ void Parser::factor(){
         operand();
     }
     else{
-        error();
+        error("an operand");
     }
 }
 
@@ -129,7 +125,7 @@ void Parser::term(){
         term();
     }
     else{
-        error();
+        error("a term");
     }
 
     token = lexer->peekNextToken();
@@ -143,7 +139,7 @@ void Parser::term(){
             factor();
         }
         else{
-            error();
+            error("a factor");
         }
     }
 
@@ -164,7 +160,7 @@ void Parser::arithmeticExpression(){
         term();
     }
     else{
-        error();
+        error("a term");
     }
 
     token = lexer->peekNextToken();
@@ -178,7 +174,7 @@ void Parser::arithmeticExpression(){
             term();
         }
         else{
-            error();
+            error("a term");
         }
     }
 
@@ -199,7 +195,7 @@ void Parser::relationalExpression(){
         arithmeticExpression();
     }
     else{
-        error();
+        error("an arithmetic expression");
     }
 
     token = lexer->peekNextToken();
@@ -214,7 +210,7 @@ void Parser::relationalExpression(){
             arithmeticExpression();
         }
         else{
-            error();
+            error("an arithmetic expression");
         }
     }
 }
@@ -226,7 +222,7 @@ void Parser::relationalExpression(){
 void Parser::expression(){
     cout << "expression\n";
 
-    token = lexer->getNextToken();
+    token = lexer->peekNextToken();
     if(token.getLexeme() == "-" ||token.getLexeme() == "~"){
         relationalExpression();
     }
@@ -234,7 +230,7 @@ void Parser::expression(){
         relationalExpression();
     }
     else{
-        error();
+        error("a relational expression");
     }
 
     token = lexer->peekNextToken();
@@ -246,7 +242,7 @@ void Parser::expression(){
             relationalExpression();
         }
         else{
-            error();
+            error("a relational expression");
         }
     }
 
@@ -297,6 +293,9 @@ void Parser::expressionList(){
     else if(token.getType() == Token::Integer || token.getType() == Token::Identifier || token.getType() == Token::String || token.getLexeme() == "true" || token.getLexeme() == "false" || token.getLexeme() == "null" || token.getLexeme() == "this") {
         expression();
     }
+    else{
+        error("an expression");
+    }
 
     token = lexer->peekNextToken();
     while(token.getLexeme() == ","){
@@ -309,7 +308,7 @@ void Parser::expressionList(){
             expression();
         }
         else{
-            error();
+            error("an expression");
         }
         token = lexer->peekNextToken();
     }
@@ -336,6 +335,9 @@ void Parser::subroutineCall(){
         if(token.getType() == Token::Identifier){
 
         }
+        else{
+            error("an identifier");
+        }
     }
 
     token = lexer->getNextToken();
@@ -354,7 +356,7 @@ void Parser::subroutineCall(){
         expressionList();
     }
     else{
-        error();
+        error("an expression/expression list");
     }
 
     token = lexer->getNextToken();
@@ -413,7 +415,7 @@ void Parser::whileStatement(){
         expression();
     }
     else{
-        error();
+        error("an expression");
     }
 
     token = lexer->getNextToken();
@@ -459,7 +461,7 @@ void Parser::ifStatement(){
 
     }
     else{
-        error();
+        error("'if'");
     }
 
     token = lexer->getNextToken();
@@ -478,7 +480,7 @@ void Parser::ifStatement(){
         term();
     }
     else{
-        error();
+        error("a term");
     }
 
     token = lexer->getNextToken();
@@ -574,7 +576,7 @@ void Parser::letStatement(){
             expression();
         }
         else{
-            error();
+            error("an expression");
         }
 
         token = lexer->getNextToken();
@@ -582,7 +584,7 @@ void Parser::letStatement(){
 
         }
         else{
-            error();
+            error("']");
         }
     }
 
@@ -603,7 +605,7 @@ void Parser::letStatement(){
         expression();
     }
     else{
-        error();
+        error("an expression");
     }
 
     token = lexer->getNextToken();
@@ -652,7 +654,7 @@ void Parser::varDeclareStatement(){
 
         }
         else{
-            error();
+            error("an identifier");
         }
         token = lexer->peekNextToken();
     }
@@ -662,7 +664,7 @@ void Parser::varDeclareStatement(){
 
     }
     else{
-        error();
+        error("';'");
     }
 }
 
@@ -693,7 +695,7 @@ void Parser::statement(){
         returnStatement();
     }
     else{
-        error();
+        error("a statement");
     }
 }
 
@@ -768,7 +770,7 @@ void Parser::paramList(){
 
     }
     else{
-        error("';");
+        error("';'");
     }
 }
 
@@ -784,7 +786,7 @@ void Parser::subroutineDeclare() {
 
     }
     else{
-        error();
+        error("a subroutine declaration");
     }
 
     token = lexer->peekNextToken();
@@ -795,7 +797,7 @@ void Parser::subroutineDeclare() {
         token = lexer->getNextToken();
     }
     else{
-        error();
+        error("'void'");
     }
 
     token = lexer->getNextToken();
@@ -803,7 +805,7 @@ void Parser::subroutineDeclare() {
 
     }
     else{
-        error("an identifier.");
+        error("an identifier");
     }
 
     token = lexer->getNextToken();
@@ -811,7 +813,7 @@ void Parser::subroutineDeclare() {
 
     }
     else{
-        error("(");
+        error("'('");
     }
 
     token = lexer->peekNextToken();
@@ -824,7 +826,7 @@ void Parser::subroutineDeclare() {
 
     }
     else{
-        error(")");
+        error("')'");
     }
 
     token = lexer->peekNextToken();
@@ -832,7 +834,7 @@ void Parser::subroutineDeclare() {
         subroutineBody();
     }
     else{
-        error();
+        error("'{'");
     }
 }
 
@@ -848,7 +850,7 @@ void Parser::type(){
 
     }
     else{
-        error();
+        error("a var type or identifier");
     }
 }
 
@@ -866,7 +868,7 @@ void Parser::memberDeclare() {
         subroutineDeclare();
     }
     else{
-        error();
+        error("a class declaration or subroutine declaration");
     }
 }
 
@@ -881,7 +883,7 @@ void Parser::classVarDeclare() {
 
     }
     else{
-        error();
+        error("'static' or 'field'");
     }
 
     token = lexer->peekNextToken();
@@ -889,7 +891,7 @@ void Parser::classVarDeclare() {
         type();
     }
     else{
-        error();
+        error("a var type or identifier");
     }
 
     token = lexer->getNextToken();
@@ -897,7 +899,7 @@ void Parser::classVarDeclare() {
 
     }
     else{
-        error();
+        error("an identifier");
     }
 
     token = lexer->peekNextToken();
@@ -908,7 +910,7 @@ void Parser::classVarDeclare() {
             token = lexer->getNextToken();
         }
         else{
-            error();
+            error("an identifier");
         }
         token = lexer->getNextToken();
     }
@@ -918,7 +920,7 @@ void Parser::classVarDeclare() {
 
     }
     else{
-        error();
+        error("';'");
     }
 }
 
