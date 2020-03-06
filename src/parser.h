@@ -38,7 +38,27 @@ public:
     Parser(Lexer *parLexer);
     void error();
 
-    void error(char *msg);
+    void error(string msg);
+
+    bool isOperand();
+
+    bool isFactor();
+
+    bool isTerm();
+
+    bool isArithmeticExpression();
+
+    bool isRelationalExpression();
+
+    bool isExpression();
+
+    bool isReturnStatement();
+
+    bool isExpressionList();
+
+    bool isSubroutineCall();
+
+    bool isStatement();
 };
 
 #endif //MYJC_PARSER_H
