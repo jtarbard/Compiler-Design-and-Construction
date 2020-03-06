@@ -10,7 +10,7 @@ Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/tests/samples/parser.j
 Parser parser(&lexer);
 }
 
-TEST_CASE("Parser does not throw error on valid file - fracion"){
+TEST_CASE("Parser does not throw error on valid file - fraction"){
 Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/tests/samples/fraction.jack");
 Parser parser(&lexer);
 }

@@ -10,6 +10,8 @@
 class Parser {
     Token token;
     Lexer *lexer;
+    //Error handler
+    void error(string msg);
     //Jack Grammar
     void operand();
     void factor();
@@ -34,31 +36,19 @@ class Parser {
     void memberDeclare();
     void classDeclare();
 
+    //Jack Grammar Rule Checkers
+    bool isOperand();
+    bool isFactor();
+    bool isTerm();
+    bool isArithmeticExpression();
+    bool isRelationalExpression();
+    bool isExpression();
+    bool isReturnStatement();
+    bool isExpressionList();
+    bool isSubroutineCall();
+    bool isStatement();
 public:
     Parser(Lexer *parLexer);
-    void error();
-
-    void error(string msg);
-
-    bool isOperand();
-
-    bool isFactor();
-
-    bool isTerm();
-
-    bool isArithmeticExpression();
-
-    bool isRelationalExpression();
-
-    bool isExpression();
-
-    bool isReturnStatement();
-
-    bool isExpressionList();
-
-    bool isSubroutineCall();
-
-    bool isStatement();
 };
 
 #endif //MYJC_PARSER_H

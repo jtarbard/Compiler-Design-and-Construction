@@ -5,7 +5,8 @@
 #include "parser.h"
 
 /**
- * Parser Constructor.
+ * Initalises the recursive decent by checking for a class declariton
+ * and calling class declare.
  */
 Parser::Parser(Lexer *parLexer) {
     lexer = parLexer;
@@ -18,22 +19,32 @@ Parser::Parser(Lexer *parLexer) {
     }
 }
 
+/**
+ * Returns a cerr message informing the user of the line
+ * the error occured on, the lexeme at the point of error
+ * and what the parser expected at that point.
+ * @param msg   a string containing the expected character/type/rule
+ */
 void Parser::error(string msg) {
     cerr << "Error occurred on line " << token.getLine() << " at or near '" << token.getLexeme() << "',";
     cerr << " expected " << msg << "." << endl;
     exit(2);
 }
 
-//TODO: check use of checks on expressions and all below for errors due to not including (expression)
-//as seen in relational expression
-
-
+/**
+ * Checks if token lexeme/type matches operand rule.
+ * @return  a bool containing rule match result
+ */
 bool Parser::isOperand(){
     return token.getType() == Token::Integer || token.getType() == Token::Identifier || token.getLexeme() == "(" ||
            token.getType() == Token::String || token.getLexeme() == "true" || token.getLexeme() == "false" ||
            token.getLexeme() == "null" || token.getLexeme() == "this";
 }
 
+/**
+ * Handles operand rule calls.
+ * operand  integerConstant | identifier [.identifier ] [ [ expression ] | (expressionList ) ] | (expression) | stringLiteral | true | false | null | this
+ */
 void Parser::operand(){
     cout << "in operand - " << token.getLexeme() << "\n";
 
@@ -74,7 +85,7 @@ void Parser::operand(){
             else if (token.getLexeme() == "(") {
                 token = lexer->getNextToken();
                 token = lexer->peekNextToken();
-                expressionList(); //expresionList
+                expressionList();
 
                 token = lexer->getNextToken();
                 if (token.getLexeme() == ")") {
@@ -105,7 +116,7 @@ void Parser::operand(){
         else if (token.getLexeme() == "(") {
             token = lexer->getNextToken();
             token = lexer->peekNextToken();
-            expressionList(); //expressionList
+            expressionList();
 
             token = lexer->getNextToken();
             if (token.getLexeme() == ")") {
@@ -152,12 +163,16 @@ void Parser::operand(){
     }
 }
 
+/**
+ * Checks if token lexeme/type matches factor rule.
+ * @return  a bool containing rule match result
+ */
 bool Parser::isFactor(){
     return token.getLexeme() == "-" || token.getLexeme() == "~" || isOperand();
 }
 
 /**
- *
+ * Handles factor rule calls.
  * factor -> ( - | ~ | ε ) operand
  */
 void Parser::factor(){
@@ -179,16 +194,19 @@ void Parser::factor(){
     }
 }
 
+/**
+ * Checks if token lexeme/type matches term rule.
+ * @return  a bool containing rule match result
+ */
 bool Parser::isTerm(){
     return isFactor();
 }
 
 /**
+ * Handles term rule calls.
  * term -> factor { ( * | / ) factor }
  */
 void Parser::term(){
-    cout << "term - " << token.getLexeme();
-    cout << ", peak: term - " << lexer->peekNextToken().getLexeme() << "\n";
 
     token = lexer->peekNextToken();
     if(isFactor()){
@@ -213,17 +231,20 @@ void Parser::term(){
 
 }
 
+/**
+ * Checks if token lexeme/type matches arithmetic
+ * expression rule.
+ * @return  a bool containing rule match result
+ */
 bool Parser::isArithmeticExpression(){
     return isTerm();
 }
 
 /**
- *
+ * Handles arithmetic expression rule calls.
  * ArithmeticExpression  term { ( + | - ) term }
  */
 void Parser::arithmeticExpression(){
-    cout << "arithmetic expression - " << token.getLexeme();
-    cout << ", peak: arithmetic expression - " << lexer->peekNextToken().getLexeme() << "\n";
 
     token = lexer->peekNextToken();
     if(isTerm()){
@@ -248,17 +269,20 @@ void Parser::arithmeticExpression(){
 
 }
 
+/**
+ * Checks if token lexeme/type matches relation
+ * expression rule.
+ * @return  a bool containing rule match result
+ */
 bool Parser::isRelationalExpression(){
     return isArithmeticExpression();
 }
 
 /**
- *
+ * Handles relational expression rule calls.
  * relationalExpression -> ArithmeticExpression { ( = | > | < ) ArithmeticExpression }
  */
 void Parser::relationalExpression(){
-    cout << "relation expression - " << token.getLexeme();
-    cout << ", peak: relation expression - " << lexer->peekNextToken().getLexeme() << "\n";
 
     token = lexer->peekNextToken();
     if(isArithmeticExpression()){
@@ -283,17 +307,19 @@ void Parser::relationalExpression(){
     }
 }
 
+/**
+ * Checks if token lexeme/type matches expression rule.
+ * @return  a bool containing rule match result
+ */
 bool Parser::isExpression(){
     return isRelationalExpression();
 }
 
 /**
- *
+ * Handles expression rule calls.
  * expression -> relationalExpression { ( & | | ) relationalExpression }
  */
 void Parser::expression(){
-    cout << "expression - " << token.getLexeme();
-    cout << ", peak: expression - " << lexer->peekNextToken().getLexeme() << "\n";
 
     token = lexer->peekNextToken();
     if(isRelationalExpression()){
@@ -319,11 +345,10 @@ void Parser::expression(){
 }
 
 /**
- *
+ * Handles return statement rule calls.
  * returnStatemnt -> return [ expression ] ;
  */
 void Parser::returnStatement(){
-    cout << "return statement - " << token.getLexeme() << "\n";
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "return"){
@@ -350,10 +375,10 @@ void Parser::returnStatement(){
 
 
 /**
+ * Handles expression list rule calls.
  * expressionList -> expression { , expression } | ε
  */
 void Parser::expressionList(){
-    cout << "in expression list - " << token.getLexeme() << "\n";
 
     token = lexer->peekNextToken();
     if(isExpression()){
@@ -374,16 +399,20 @@ void Parser::expressionList(){
     }
 }
 
+/**
+ * Checks if token lexeme/type matches subroutine
+ * call rule.
+ * @return  a bool containing rule match result
+ */
 bool Parser::isSubroutineCall(){
     return token.getType() == Token::Identifier;
 }
 
 /**
- *
- * subroutineCall -> identifier [ . identifier ] ( expressionList )
+ *  Handles subroutine call rule calls.
+ *  subroutineCall -> identifier [ . identifier ] ( expressionList )
  */
 void Parser::subroutineCall(){
-    cout << "subroutine call - " << token.getLexeme() << "\n";
 
     token = lexer->getNextToken();
     if(token.getType() == Token::Identifier){
@@ -412,7 +441,6 @@ void Parser::subroutineCall(){
         error("'('");
     }
 
-    //TODO: check if get next token required
     expressionList();
 
     token = lexer->getNextToken();
@@ -425,11 +453,10 @@ void Parser::subroutineCall(){
 }
 
 /**
- *
+ * Handles do statement rule calls.
  * doStatement -> do subroutineCall ;
  */
 void Parser::doStatement(){
-    cout << "do statement - " << token.getLexeme() << "\n";
 
     token = lexer->getNextToken();
     token = lexer->peekNextToken();
@@ -450,11 +477,10 @@ void Parser::doStatement(){
 }
 
 /**
- *
+ *  Handles while statement rule calls.
  * whileStatement -> while ( expression ) { {statement} }
  */
 void Parser::whileStatement(){
-    cout << "while statement - " << token.getLexeme() << "\n";
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "while"){
@@ -512,11 +538,10 @@ void Parser::whileStatement(){
 }
 
 /**
- *
+ * Handles if statement rule calls.
  * ifStatement -> if ( expression ) { {statement} } [else { {statement} }]
  */
 void Parser::ifStatement(){
-    cout << "if statement - " << token.getLexeme() << "\n";
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "if"){
@@ -601,12 +626,10 @@ void Parser::ifStatement(){
 }
 
 /**
- *
+ * Handles let statement rule calls.
  * letStatemnt -> let identifier [ [ expression ] ] = expression ;
  */
 void Parser::letStatement(){
-    cout << "let statement - " << token.getLexeme() << "\n";
-
     token = lexer->getNextToken();
     if(token.getLexeme() == "let"){
 
@@ -627,7 +650,7 @@ void Parser::letStatement(){
     if(token.getLexeme() == "["){
         token = lexer->getNextToken();
         token = lexer->peekNextToken();
-        //TODO: check logic
+
         if(isExpression()){
             expression();
         }
@@ -652,7 +675,6 @@ void Parser::letStatement(){
         error("'='");
     }
 
-    //TODO: check logic
     token = lexer->peekNextToken();
     if(isExpression()){
         expression();
@@ -671,11 +693,10 @@ void Parser::letStatement(){
 
 }
 /**
- *
+ * Handles var decalre statement rule calls.
  * varDeclarStatement -> var type identifier { , identifier } ;
  */
 void Parser::varDeclareStatement(){
-    cout << "var declare statement - " << token.getLexeme() << "\n";
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "var"){
@@ -720,16 +741,19 @@ void Parser::varDeclareStatement(){
     }
 }
 
+/**
+ * Checks if token lexeme/type matches statement rule.
+ * @return  a bool containing rule match result
+ */
 bool Parser::isStatement(){
     return token.getLexeme() == "var" || token.getLexeme() == "let" || token.getLexeme() == "if" || token.getLexeme() == "while" || token.getLexeme() == "do" || token.getLexeme() == "return";
 }
 
 /**
- *
+ * Handles statement rule calls.
  * statement -> varDeclarStatement | letStatemnt | ifStatement | whileStatement | doStatement | returnStatemnt
  */
 void Parser::statement(){
-    cout << "in statement - " << token.getLexeme() << "\n";
 
     token = lexer->peekNextToken();
     if(token.getLexeme() == "var"){
@@ -756,11 +780,10 @@ void Parser::statement(){
 }
 
 /**
- *
+ * Handles subroutine body rule calls.
  * subroutineBody -> { {statement} }
  */
 void Parser::subroutineBody(){
-    cout << "In subroutine body - " << token.getLexeme() << "\n";
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "{"){
@@ -786,11 +809,10 @@ void Parser::subroutineBody(){
 }
 
 /**
- *
+ * Handles param list rule calls.
  * paramList -> type identifier {, type identifier} | ε
  */
 void Parser::paramList(){
-    cout << "In param list - " << token.getLexeme() << "\n";
 
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
@@ -825,11 +847,10 @@ void Parser::paramList(){
 }
 
 /**
- *
+ * Handles subroutine declare rule calls.
  * subroutineDeclar -> (constructor | function | method) (type|void) identifier (paramList) subroutineBody
  */
 void Parser::subroutineDeclare() {
-    cout << "in subroutine declare - " << token.getLexeme() << "\n";
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "constructor" || token.getLexeme() == "function" || token.getLexeme() == "method"){
@@ -889,11 +910,10 @@ void Parser::subroutineDeclare() {
 }
 
 /**
- *
+ * Handles type rule calls.
  * type -> int | char | boolean | identifier
  */
 void Parser::type(){
-    cout << "in type - " << token.getLexeme() << "\n";
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
@@ -905,11 +925,11 @@ void Parser::type(){
 }
 
 /**
- *
+ * Handles class var declare rule calls.
  * classVarDeclar -> (static | field) type identifier {, identifier} ;
  */
 void Parser::memberDeclare() {
-    cout << "in member declare - " << token.getLexeme() << "\n";
+
     token = lexer->peekNextToken();
     if(token.getLexeme() == "static" || token.getLexeme() == "field"){
         classVarDeclare();
@@ -923,11 +943,11 @@ void Parser::memberDeclare() {
 }
 
 /**
- *
+ * Handles member declare rule calls.
  * memberDeclar -> classVarDeclar | subroutineDeclar
  */
 void Parser::classVarDeclare() {
-    cout << "in class var declare - " << token.getLexeme() << "\n";
+
     token = lexer->getNextToken();
     if(token.getLexeme() == "static" || token.getLexeme() == "field"){
 
@@ -975,11 +995,11 @@ void Parser::classVarDeclare() {
 }
 
 /**
- *
+ * Handles class decalre rule calls.
  * classDeclar -> class identifier { {memberDeclar} }
  */
 void Parser::classDeclare() {
-    cout << "in Class declare-  - " << token.getLexeme() << "\n";
+
     token = lexer->getNextToken();
     if(token.getLexeme() == "class"){
 
