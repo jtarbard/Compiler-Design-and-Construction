@@ -43,12 +43,10 @@ class Parser {
     bool isArithmeticExpression();
     bool isRelationalExpression();
     bool isExpression();
-    bool isReturnStatement();
-    bool isExpressionList();
     bool isSubroutineCall();
     bool isStatement();
 public:
-    Parser(Lexer *parLexer);
+    explicit Parser(Lexer *parLexer);
 };
 
 #endif //MYJC_PARSER_H
