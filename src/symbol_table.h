@@ -34,14 +34,12 @@ private:
         int size;
         bool constant;
         vector<Symbol> args;
-    };
+    } attributes;
 
 };
 
 class Symbol_Table {
     vector<Symbol> table;
-    //TODO: evaluate if count necessary
-    int count = 0;
 
 public:
     void addSymbol(string name, Symbol::symbolType type, Symbol::symbolKind kind, int size, bool constant, vector<Symbol> args);
