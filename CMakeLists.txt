@@ -12,6 +12,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
             src/lexer.h
             src/parser.cpp
             src/parser.h
+            src/symbol_table.cpp
+            src/symbol_table.h
             tests/catch_main.cpp
             tests/lexer_tests.cpp
             tests/parser_tests.cpp
@@ -25,6 +27,8 @@ else()
             src/lexer.h
             src/parser.cpp
             src/parser.h
+            src/symbol_table.cpp
+            src/symbol_table.h
             src/main.cpp
             src/main.h
             )

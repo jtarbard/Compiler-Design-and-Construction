@@ -14,6 +14,7 @@ using namespace std;
 class Token {
 public:
     enum tokenType {Keyword, Identifier, Symbol, Integer, String, eof};
+
     void setLexeme(string str);
     void setType(tokenType type);
     void setLine(int ln);
