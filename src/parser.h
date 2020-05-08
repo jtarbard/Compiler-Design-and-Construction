@@ -6,12 +6,14 @@
 #define MYJC_PARSER_H
 
 #include "lexer.h"
+#include "symbolTable.h"
 
 class Parser {
     Token token;
     Lexer *lexer;
+    SymbolTable table;
     //Error handler
-    void error(string msg);
+    void error(string errorType, string msg);
     //Jack Grammar
     void operand();
     void factor();
@@ -29,7 +31,7 @@ class Parser {
     void varDeclareStatement();
     void statement();
     void subroutineBody();
-    void paramList();
+    Table paramList();
     void subroutineDeclare();
     void type();
     void classVarDeclare();
@@ -47,6 +49,7 @@ class Parser {
     bool isStatement();
 public:
     explicit Parser(Lexer *parLexer);
+
 };
 
 #endif //MYJC_PARSER_H
