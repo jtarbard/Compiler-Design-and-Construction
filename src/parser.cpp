@@ -37,7 +37,7 @@ void Parser::error(string errorType,string msg) {
     else if (errorType == "symbol"){
         cerr << "Error occurred on line " << token.getLine() << " at or near '" << token.getLexeme() << "', ";
         cerr << msg << "." << endl;
-        exit(2);
+//        exit(2); //todo: switch from warnings once external classes are included
     }
 }
 
@@ -852,9 +852,9 @@ void Parser::subroutineBody(){
  * Handles param list rule calls.
  * paramList -> type identifier {, type identifier} | ε
  */
-Table Parser::paramList(){
+vector<Symbol> Parser::paramList(){
 
-    Table param;
+    vector<Symbol> param;
     Symbol symbol;
 
     token = lexer->peekNextToken();
@@ -868,7 +868,7 @@ Table Parser::paramList(){
         symbol.setName(token.getLexeme());
     }
 
-    param.addSymbol(symbol);
+    param.push_back(symbol);
 
     token = lexer->peekNextToken();
     while(token.getLexeme() == ","){
@@ -890,7 +890,7 @@ Table Parser::paramList(){
             error("parser", "an identifier");
         }
 
-        param.addSymbol(symbol);
+        param.push_back(symbol);
 
         token = lexer->peekNextToken();
     }
@@ -944,9 +944,7 @@ void Parser::subroutineDeclare() {
 
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
-        cout << symbol.getName() << endl; //todo remove
         symbol.setArgs(paramList());
-        cout << "exit paramlist" << endl;
     }
 
     token = lexer->getNextToken();
@@ -1074,14 +1072,13 @@ void Parser::classVarDeclare() {
 void Parser::classDeclare() {
 
     Symbol symbol;
-    symbol.setType(Symbol::Type);
-    symbol.setKind(Symbol::Object);
 
     table.addSymbol(symbol);
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "class"){
-
+        symbol.setType(Symbol::Type);
+        symbol.setKind(Symbol::Object);
     }
     else{
         error("parser", "class");
@@ -1108,6 +1105,8 @@ void Parser::classDeclare() {
         error("parser", "{");
     }
 
+    table.addSymbol(symbol); //add class to table
+
     token = lexer->peekNextToken();
     while(token.getLexeme() == "static" || token.getLexeme() == "field" || token.getLexeme() == "constructor" || token.getLexeme() == "function" || token.getLexeme() == "method"){
         memberDeclare();
@@ -1122,8 +1121,9 @@ void Parser::classDeclare() {
         error("parser", "}");
     }
 
-    symbol.setSize(table.getSize()); //set size of class to size of table
+    auto temp = table.getSize(); //set size of class to size of table
     table.delScope(); //destroy local scope
-    table.addSymbol(symbol); //add class to table
+    table.editSymbol(symbol.getName())->setSize(temp); //set the size of the class
+
 }
 

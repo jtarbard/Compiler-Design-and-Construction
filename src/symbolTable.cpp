@@ -33,7 +33,7 @@ bool Symbol::getConstant() {
     return this->attributes.constant;
 }
 
-Table* Symbol::getArgs() {
+vector<Symbol> Symbol::getArgs() {
     return this->attributes.args;
 }
 
@@ -53,8 +53,8 @@ void Symbol::setConst(bool isConst) {
     this->attributes.constant = isConst;
 }
 
-void Symbol::setArgs(Table args) {
-    this->attributes.args = &args;
+void Symbol::setArgs(vector<Symbol> args) {
+    this->attributes.args = args;
 }
 
 void Symbol::setRetType(string retType) {
@@ -96,11 +96,12 @@ bool Table::findSymbol(string name) {
             //symbol with name found
             return true;
         }
-        else if(symbol.getType() == Symbol::Function && symbol.getArgs() != nullptr){
-            Table* temp = symbol.getArgs();
-            cout << "PARAMLIST" << symbol.getName() << temp->findSymbol(name);
-            if(temp->findSymbol(name)){
-                return true;
+        else if(symbol.getType() == Symbol::Function && symbol.getArgs().size() > 0){
+            vector<Symbol> temp = symbol.getArgs();
+            for(auto i = temp.begin(); i != temp.end(); i++){
+                if(i->getName() == name){
+                    return true;
+                }
             }
         }
     }
@@ -147,7 +148,7 @@ int Table::findSymbolSize(string name) {
 
 void SymbolTable::addSymbol(Symbol symbol) {
     symbolTable.back().addSymbol(symbol);
-    cout << symbol.getName() << symbol.getType() << endl; //todo remove
+    cout << "Symbol: " <<symbol.getName() << ", " << symbol.getType() << endl; //todo remove
 }
 
 bool SymbolTable::findSymbol(string name) {
@@ -190,4 +191,28 @@ int SymbolTable::findSymbolSize(string name) {
     }
 
     return -1;
+}
+
+Symbol* Table::editSymbol(string name) {
+    vector<Symbol>::iterator tCursor;
+    Symbol symbol;
+    //search through symbol table
+    for(tCursor = table.begin(); tCursor != table.end(); tCursor++) {
+        symbol = *tCursor;
+        if(symbol.getName() == name) {
+            //symbol with name found
+            return &symbol;
+        }
+    }
+
+    return nullptr;
+}
+
+Symbol* SymbolTable::editSymbol(string name) {
+    for(auto table : symbolTable){
+        Symbol *symbol = table.editSymbol(name);
+        if(symbol != nullptr){
+            return symbol;
+        }
+    }
 }

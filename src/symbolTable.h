@@ -29,14 +29,14 @@ public:
     void setNumArgs(int args);
     void setLocVarSize(int size);
     void setRetType(string retType);
-    void setArgs(Table args);
+    void setArgs(vector<Symbol> args);
     //getters
     string getName();
     symbolType getType();
     symbolKind getKind();
     int getSize();
     bool getConstant();
-    Table* getArgs();
+    vector<Symbol> getArgs();
 
 private:
     string name;
@@ -49,13 +49,13 @@ private:
         int numArgs;
         int locVarSize;
         string return_type;
-        Table* args = nullptr;
+        vector<Symbol> args;
     } attributes;
 
 };
 
 class Table {
-    std::list<Table> table;
+    vector<Symbol> table;
 
 public:
     void addSymbol(Symbol symbol);
@@ -63,6 +63,8 @@ public:
     int findSymbolSize(string name);
     int getSize();
     void display();
+
+    Symbol *editSymbol(string name);
 };
 
 class SymbolTable {
@@ -77,6 +79,8 @@ public:
     int getSize();
 
     void display();
+
+    Symbol *editSymbol(string name);
 };
 
 
