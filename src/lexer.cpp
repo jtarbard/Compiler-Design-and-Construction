@@ -40,7 +40,6 @@ int Token::getLine() {
  */
 
 Lexer::Lexer(char *arg) {
-    cout << "Filename: " << arg << endl; //todo: remove
 
     file.open(arg);
 

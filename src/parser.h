@@ -32,7 +32,7 @@ class Parser {
     void varDeclareStatement();
     void statement();
     void subroutineBody();
-    void paramList();
+    SymbolTable paramList();
     void subroutineDeclare();
     void type();
     void classVarDeclare();

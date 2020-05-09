@@ -2,25 +2,10 @@
 class Custom {
     /** Comment test */
 
-    field int h;
-
-    function void main(){
-        let x = 5; //bad
-        var int x; //good
-        var int x; //bad
-        var char y; //good
-        let y = "false"; //good
-        var boolean z; //bad
-        let z = "true"; //bad - type error
-
-        if(x + a > 10){ //bad - not initialised error
-
-        }
-
-        var Array a; //good
-        let a[true] = 10; //bad - expression error
-
-        let y = Doc.title; //good? maybe not sure
+    function int new(){
+        var int x;
+        let x = 5;
+        var int x;
     }
 }
 

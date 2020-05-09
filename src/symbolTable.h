@@ -23,32 +23,32 @@ public:
     string name;
     symbolTypes type;
 
-    typedef struct {
+    struct {
 
-        typedef struct {
+        struct {
             symbolKind kind;
             int size;
         } type;
 
-        typedef struct {
+        struct {
             bool init;
-            Symbol* type;
+            string type;
             int relAddress;
             bool isConst;
         } variable;
 
-        typedef struct {
+        struct {
             int numOfArgs;
-            Symbol* type;
+            string type;
             int localVarSize;
-            SymbolTable* arguments;
+            vector<Symbol> arguments;
         } function;
+
     } attributes;
 };
 
 class SymbolTable {
 
-    vector<Symbol> table;
 
     //queue used for types that are identifiers and need to be evaluated at the end
     //queue also used for identifiers of a class aka identifier.identifier where the second identifier need not
@@ -56,6 +56,8 @@ class SymbolTable {
     //the symboltable, if not an error is thrown.
 
 public:
+
+    vector<Symbol> table;
 
     SymbolTable()= default;;
 
