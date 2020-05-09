@@ -9,8 +9,9 @@ class Custom {
         let x = Doc.title;
         let y = 7;
         var int x;
+        var int b;
 
-        if(z){
+        if(z + b){
 
         }
     }

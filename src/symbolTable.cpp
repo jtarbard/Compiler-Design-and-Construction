@@ -4,7 +4,7 @@
 
 void Table::addSymbol(Symbol symbol) {
     symbol.relativeAddress = relativeAddress[symbol.kind];
-    relativeAddress[symbol.kind]++;
+    this->relativeAddress[symbol.kind]++;
     table.push_back(symbol);
 }
 
@@ -28,10 +28,6 @@ Symbol* Table::editSymbol(string name) {
     return nullptr;
 }
 
-void Table::clearTable() {
-    this->table.clear();
-}
-
 SymbolTable::SymbolTable() {
     global = Table();
     local = Table();
@@ -39,6 +35,21 @@ SymbolTable::SymbolTable() {
 
 bool SymbolTable::findSymbol(string name) {
     return global.findSymbol(name) || local.findSymbol(name);
+}
+
+Symbol* SymbolTable::editSymbol(string name) {
+    Symbol* g = global.editSymbol(name);
+    Symbol* l =local.editSymbol(name);
+
+    if(g != nullptr){
+        return g;
+    }
+    else if(l != nullptr){
+        return l;
+    }
+    else{
+        return nullptr;
+    }
 }
 
 void SymbolTable::display() {
@@ -55,7 +66,8 @@ void SymbolTable::display() {
         }
         cout << "-----------------------" << endl;
         for(const auto& g : scope.table){
-            cout << "Name: " << g.name << ", Type: " << g.type << ", Kind: " << static_cast<Symbol::symbolKind>(g.kind) << ", Address: " << g.relativeAddress << endl;
+            cout << "Name: " << g.name << ", Type: " << g.type << ", Kind: " << static_cast<Symbol::symbolKind>(g.kind)
+            << ", Address: " << g.relativeAddress << ", Init: "<< g.isInitialised << endl;
         }
     }
 

@@ -39,12 +39,15 @@ void Parser::error(string errorType,string msg) {
         cerr << msg << "." << endl;
 //        exit(2); //todo: switch from warnings once external classes are included
     }
+    else if (errorType == "custom"){
+        cerr << "Error occurred on line " << token.getLine() << " at or near " << msg << "." << endl;;
+    }
 }
 
 void Parser::setSymbolType(Symbol* symbol){
     //set symbol type todo: does this need to throw an error
     if(symbolTable.global.findSymbol(token.getLexeme())) {
-        symbol->type = symbolTable.editSymbol(token.getLexeme());
+        symbol->type = token.getLexeme();
     }
 }
 
@@ -75,11 +78,20 @@ bool Parser::isOperand(){
  */
 void Parser::operand(){
 
+    string symbolName;
+
     token = lexer->getNextToken();
     if(token.getType() == Token::Integer){
 
     }
     else if(token.getType() == Token::Identifier) {
+
+        if(!(symbolTable.findSymbol(token.getLexeme())) && lexer->peekNextToken().getLexeme() != "."){
+            error("symbol", "identifier is not declared");
+        }
+        else{
+            symbolName = token.getLexeme();
+        }
 
         token = lexer->peekNextToken();
         if (token.getLexeme() == ".") {
@@ -151,6 +163,13 @@ void Parser::operand(){
 
             } else {
                 error("parser", "')'");
+            }
+        }
+        else{
+            if(symbolTable.findSymbol(symbolName)){
+                if(!symbolTable.editSymbol(symbolName)->isInitialised){
+                    error("custom", "'"+symbolName+"' is not initialised");
+                }
             }
         }
     }
@@ -441,6 +460,7 @@ void Parser::subroutineCall(){
 
     token = lexer->getNextToken();
     if(token.getType() == Token::Identifier){
+
     }
     else{
         error("parser", "an identifier");
@@ -655,6 +675,9 @@ void Parser::ifStatement(){
  * letStatemnt -> let identifier [ [ expression ] ] = expression ;
  */
 void Parser::letStatement(){
+
+    string symbolName;
+
     token = lexer->getNextToken();
     if(token.getLexeme() == "let"){
 
@@ -665,7 +688,13 @@ void Parser::letStatement(){
 
     token = lexer->getNextToken();
     if(token.getType() == Token::Identifier){
-
+        //check for declaration in all scopes
+        if(symbolTable.findSymbol(token.getLexeme())){
+            symbolName = token.getLexeme();
+        }
+        else{
+            error("symbol", "identifier is not declared");
+        }
     }
     else{
         error("parser", "an identifier");
@@ -710,7 +739,9 @@ void Parser::letStatement(){
 
     token = lexer->getNextToken();
     if(token.getLexeme() == ";"){
-
+        if(symbolTable.findSymbol(symbolName)) {
+            symbolTable.editSymbol(symbolName)->isInitialised = true;
+        }
     }
     else{
         error("parser", "';'");
@@ -724,6 +755,7 @@ void Parser::letStatement(){
 void Parser::varDeclareStatement(){
 
     Symbol symbol;
+    symbol.kind = Symbol::Local;
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "var"){
@@ -736,11 +768,13 @@ void Parser::varDeclareStatement(){
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
         type();
+        setSymbolType(&symbol); //set symbol type
     }
 
     token = lexer->getNextToken();
     if(token.getType() == Token::Identifier){
-
+        setSymbolName(&symbol, symbolTable.local); //set symbol name if not duplicate
+        symbolTable.local.addSymbol(symbol);
     }
     else{
         error("parser", "an identifier");
@@ -751,7 +785,8 @@ void Parser::varDeclareStatement(){
         token = lexer->getNextToken();
         token = lexer->getNextToken();
         if(token.getType() == Token::Identifier){
-
+            setSymbolName(&symbol, symbolTable.local); //set symbol name if not duplicate
+            symbolTable.local.addSymbol(symbol);
         }
         else{
             error("parser", "an identifier");
@@ -843,6 +878,7 @@ void Parser::paramList(){
 
     Symbol symbol;
     symbol.kind = Symbol::Argument;
+    symbol.isInitialised = true;
 
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
@@ -895,6 +931,10 @@ void Parser::paramList(){
  */
 void Parser::subroutineDeclare() {
 
+    if(symbolTable.local.table.size() > 0){
+        symbolTable.local.table.clear();
+    }
+
     //create symbol for new subroutine
     Symbol symbol;
 
@@ -928,7 +968,12 @@ void Parser::subroutineDeclare() {
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "("){
-
+        //add this variable as first argument
+        Symbol _this;
+        _this.name = "this";
+        _this.type = symbol.name;
+        _this.kind = Symbol::Argument;
+        symbolTable.local.addSymbol(_this);
     }
     else{
         error("parser", "'('");
@@ -936,13 +981,6 @@ void Parser::subroutineDeclare() {
 
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
-        //add this variable as first argument
-        Symbol _this;
-        _this.name = "this";
-        _this.type = &_this;
-        _this.kind = Symbol::Argument;
-        symbolTable.local.addSymbol(_this);
-
         paramList();
     }
 
@@ -1066,6 +1104,10 @@ void Parser::classVarDeclare() {
  * classDeclar -> class identifier { {memberDeclar} }
  */
 void Parser::classDeclare() {
+
+    if(symbolTable.global.table.size() > 0){
+        symbolTable.global.table.clear();
+    }
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "class"){

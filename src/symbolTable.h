@@ -20,9 +20,11 @@ public:
     enum symbolKind {Field, Static, Local, Argument};
 
     string name;
-    Symbol* type;
+    string type;
     symbolKind kind;
     int relativeAddress;
+
+    bool isInitialised = false;
 };
 
 class Table {
@@ -39,10 +41,11 @@ public:
     Table()= default;;
 
     void addSymbol(Symbol symbol);
-    Symbol* editSymbol(string name);
+
+    virtual Symbol* editSymbol(string name);
 
     virtual bool findSymbol(string name);
-    void clearTable();
+
 
 };
 
@@ -56,6 +59,7 @@ public:
     bool findSymbol(string name);
     void display();
 
+    Symbol *editSymbol(string name);
 };
 
 #endif //MYJC_SYMBOLTABLE_H
