@@ -11,77 +11,56 @@
 
 using namespace std;
 
-class Table;
+class SymbolTable;
 
 class Symbol {
+
 public:
-    enum symbolType {Type, Variable, Function};
-    enum symbolKind {Simple, Array, Struct, Object};
 
-    //setters
-    void setName(string name);
-    void setType(symbolType type);
-    void setKind(symbolKind kind);
-    void setSize(int size);
-    void setSize(const string& size);
-    void setVarType(string type);
-    void setConst(bool isConst);
-    void setNumArgs(int args);
-    void setLocVarSize(int size);
-    void setRetType(string retType);
-    void setArgs(vector<Symbol> args);
-    //getters
-    string getName();
-    symbolType getType();
-    symbolKind getKind();
-    int getSize();
-    bool getConstant();
-    vector<Symbol> getArgs();
+    enum symbolTypes {Type, Variable, Function};
+    enum symbolKind {Simple, Array, Struct};
 
-private:
     string name;
-    symbolType type;
-    struct attributes {
-        symbolKind kind;
-        int size;
-        string type;
-        bool constant;
-        int numArgs;
-        int locVarSize;
-        string return_type;
-        vector<Symbol> args;
+    symbolTypes type;
+
+    typedef struct {
+
+        typedef struct {
+            symbolKind kind;
+            int size;
+        } type;
+
+        typedef struct {
+            bool init;
+            Symbol* type;
+            int relAddress;
+            bool isConst;
+        } variable;
+
+        typedef struct {
+            int numOfArgs;
+            Symbol* type;
+            int localVarSize;
+            SymbolTable* arguments;
+        } function;
     } attributes;
-
-};
-
-class Table {
-    vector<Symbol> table;
-
-public:
-    void addSymbol(Symbol symbol);
-    bool findSymbol(string name);
-    int findSymbolSize(string name);
-    int getSize();
-    void display();
-
-    Symbol *editSymbol(string name);
 };
 
 class SymbolTable {
-    std::list<Table> symbolTable;
+
+    vector<Symbol> table;
+
+    //queue used for types that are identifiers and need to be evaluated at the end
+    //queue also used for identifiers of a class aka identifier.identifier where the second identifier need not
+    //be known. It is read at end of parser compilation and then each item is checked to see whether if it is in
+    //the symboltable, if not an error is thrown.
 
 public:
+
+    SymbolTable()= default;;
+
     void addSymbol(Symbol symbol);
-    void addScope();
-    void delScope();
     bool findSymbol(string name);
-    int findSymbolSize(string name);
-    int getSize();
-
-    void display();
-
-    Symbol *editSymbol(string name);
 };
-
 
 #endif //MYJC_SYMBOLTABLE_H

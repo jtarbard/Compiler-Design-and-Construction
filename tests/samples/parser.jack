@@ -8,8 +8,6 @@ class Test {
         let x = 404;
         var char y;
         let y = "false";
-        var boolean z;
-        let z = true;
 
         return 0;
     }

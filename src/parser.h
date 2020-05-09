@@ -11,7 +11,8 @@
 class Parser {
     Token token;
     Lexer *lexer;
-    SymbolTable table;
+    int ct; //current table
+    SymbolTable symbolTables[2];
     //Error handler
     void error(string errorType, string msg);
     //Jack Grammar
@@ -31,7 +32,7 @@ class Parser {
     void varDeclareStatement();
     void statement();
     void subroutineBody();
-    vector<Symbol> paramList();
+    void paramList();
     void subroutineDeclare();
     void type();
     void classVarDeclare();

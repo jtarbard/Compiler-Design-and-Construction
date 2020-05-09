@@ -51,5 +51,6 @@ public:
     Lexer(char *arg);
     Token getNextToken();
     Token peekNextToken();
+    string getFileName(){}
 };
 #endif //COMP2932_LEXER_H
