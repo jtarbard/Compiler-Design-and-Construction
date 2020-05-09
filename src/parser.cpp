@@ -40,7 +40,7 @@ void Parser::error(string errorType,string msg) {
     else if (errorType == "symbol"){
         cerr << "Error occurred on line " << token.getLine() << " at or near '" << token.getLexeme() << "', ";
         cerr << msg << "." << endl;
-        exit(2); //todo: switch from warnings once external classes are included
+//        exit(2); //todo: switch from warnings once external classes are included
     }
     else if (errorType == "custom"){
         cerr << "Error occurred on line " << token.getLine() << " at or near " << msg << "." << endl;;
@@ -63,12 +63,13 @@ void Parser::setSymbolName(Symbol* symbol, Table table){
     }
 }
 
-void Parser::typeChecker(string oldType, string newType){
-    if(oldType == "any" || newType == "any"){
-
-    }
-    else if(oldType != newType){
-        error("symbol", "expression types "+oldType+" and "+newType+" do not match");
+void Parser::typeChecker(string t1, string t2){
+    if(t1 != t2){
+        if(t1 == "int" || t1 == "char" || t1 == "boolean"){
+            if(t2 == "int" || t2 == "char" || t2 == "boolean"){
+                error("symbol", "expression types "+t1+" and "+t2+" do not match");
+            }
+        }
     }
 }
 
@@ -105,7 +106,6 @@ string Parser::operand(){
         }
 
         if(symbolTable.findSymbol(token.getLexeme())){
-            //todo: fix type not setting
             type = symbolTable.editSymbol(token.getLexeme())->getType();
         }
         else{
@@ -117,7 +117,12 @@ string Parser::operand(){
             token = lexer->getNextToken();
             token = lexer->getNextToken();
             if (token.getType() == Token::Identifier) {
-                //symbol table: not checked due to rule 1
+                if(symbolTable.findSymbol(token.getLexeme())){
+                    type = symbolTable.editSymbol(token.getLexeme())->getType();
+                }
+                else{
+                    type = token.getLexeme();
+                }
             }
             else {
                 error("parser", "an identifier");
@@ -128,7 +133,7 @@ string Parser::operand(){
                 token = lexer->getNextToken();
                 token = lexer->peekNextToken();
                 if (isExpression()) {
-                    expression();
+                    typeChecker("int", expression());
                 } else {
                     error("parser", "an expression");
                 }
@@ -158,11 +163,7 @@ string Parser::operand(){
             token = lexer->getNextToken();
             token = lexer->peekNextToken();
             if (isExpression()) {
-                //must result in int
-                string t = expression();
-                if( t != "int"){
-                    error("symbol", "array index is"+t+" should of type int");
-                }
+                typeChecker("int", expression());
             }
             else {
                 error("parser", "an expression");
@@ -755,7 +756,7 @@ void Parser::letStatement(){
         token = lexer->peekNextToken();
 
         if(isExpression()){
-            expression();
+            typeChecker("int", expression());
         }
         else{
             error("parser", "an expression");
@@ -780,7 +781,12 @@ void Parser::letStatement(){
 
     token = lexer->peekNextToken();
     if(isExpression()){
-        expression();
+        if(symbolTable.findSymbol(symbolName)) {
+            typeChecker(symbolTable.editSymbol(symbolName)->getType(), expression());
+        }
+        else{
+            expression();
+        }
     }
     else{
         error("parser", "an expression");
@@ -987,6 +993,7 @@ void Parser::subroutineDeclare() {
 
     //create symbol for new subroutine
     Symbol symbol;
+    symbol.setKind(Symbol::Function);
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "constructor" || token.getLexeme() == "function" || token.getLexeme() == "method"){
@@ -1011,6 +1018,7 @@ void Parser::subroutineDeclare() {
     token = lexer->getNextToken();
     if(token.getType() ==  Token::Identifier){
         setSymbolName(&symbol, symbolTable.global); //set symbol name if not duplicate
+        symbolTable.global.addSymbol(symbol); //add symbol to class scope
     }
     else{
         error("parser", "an identifier");

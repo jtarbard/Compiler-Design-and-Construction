@@ -17,7 +17,7 @@ class SymbolTable;
 class Symbol {
 
 public:
-    enum symbolKind {Field, Static, Local, Argument};
+    enum symbolKind {Field, Static, Local, Argument, Simple, Array, Struct, Function};
 
     void setName(string pName){name = std::move(pName);}
     void setType(string pType){type = std::move(pType);}

@@ -3,8 +3,10 @@
 #include "symbolTable.h"
 
 void Table::addSymbol(Symbol symbol) {
-    symbol.setRelAdd(relativeAddress[symbol.getKind()]);
-    this->relativeAddress[symbol.getKind()]++;
+    if(symbol.getKind() < 4) {
+        symbol.setRelAdd(relativeAddress[symbol.getKind()]);
+        this->relativeAddress[symbol.getKind()]++;
+    }
     table.push_back(symbol);
 }
 
