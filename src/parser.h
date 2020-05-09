@@ -59,6 +59,8 @@ public:
     explicit Parser(Lexer *parLexer);
 
     void typeChecker(string oldType, string newType);
+
+    void typeChecker(string t1);
 };
 
 #endif //MYJC_PARSER_H

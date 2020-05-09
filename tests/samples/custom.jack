@@ -13,6 +13,11 @@ class Custom {
 
         let b = 8;
 
+        var Array arr;
+
+        let arr[b] = 12;
+        let arr[3] = 24;
+
         if(z + b){
 
         }

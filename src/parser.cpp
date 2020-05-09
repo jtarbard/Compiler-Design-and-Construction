@@ -73,6 +73,13 @@ void Parser::typeChecker(string t1, string t2){
     }
 }
 
+
+void Parser::typeChecker(string t1){
+    if(t1 == "char" || t1 == "boolean"){
+        error("symbol", "array index is not of required type int");
+    }
+}
+
 /**
  * Checks if token lexeme/type matches operand rule.
  * @return  a bool containing rule match result
@@ -133,7 +140,7 @@ string Parser::operand(){
                 token = lexer->getNextToken();
                 token = lexer->peekNextToken();
                 if (isExpression()) {
-                    typeChecker("int", expression());
+                    typeChecker(expression());
                 } else {
                     error("parser", "an expression");
                 }
@@ -163,7 +170,7 @@ string Parser::operand(){
             token = lexer->getNextToken();
             token = lexer->peekNextToken();
             if (isExpression()) {
-                typeChecker("int", expression());
+                typeChecker(expression());
             }
             else {
                 error("parser", "an expression");
@@ -756,7 +763,7 @@ void Parser::letStatement(){
         token = lexer->peekNextToken();
 
         if(isExpression()){
-            typeChecker("int", expression());
+            typeChecker(expression());
         }
         else{
             error("parser", "an expression");
