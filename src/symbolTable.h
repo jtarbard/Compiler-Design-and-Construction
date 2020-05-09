@@ -6,6 +6,7 @@
 #define MYJC_SYMBOLTABLE_H
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <list>
 
@@ -16,15 +17,30 @@ class SymbolTable;
 class Symbol {
 
 public:
-
     enum symbolKind {Field, Static, Local, Argument};
+
+    void setName(string pName){name = std::move(pName);}
+    void setType(string pType){type = std::move(pType);}
+    void setKind(symbolKind pKind){kind = pKind;}
+    void setInit(bool pInit){initialised = pInit;}
+    void setRelAdd(int pRelAdd){relativeAddress = pRelAdd;}
+
+    string getName(){return name;}
+    string getType(){return type;}
+    symbolKind getKind(){return kind;}
+    bool getInit(){return initialised;}
+    int getRelAdd(){return relativeAddress;}
+
+private:
 
     string name;
     string type;
     symbolKind kind;
     int relativeAddress;
 
-    bool isInitialised = false;
+    bool initialised = false;
+
+
 };
 
 class Table {

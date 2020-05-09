@@ -18,12 +18,12 @@ class Parser {
     //Error handler
     void error(string errorType, string msg);
     //Jack Grammar
-    void operand();
-    void factor();
-    void term();
-    void arithmeticExpression();
-    void relationalExpression();
-    void expression();
+    string operand();
+    string factor();
+    string term();
+    string arithmeticExpression();
+    string relationalExpression();
+    string expression();
     void returnStatement();
     void expressionList();
     void subroutineCall();
@@ -58,6 +58,7 @@ class Parser {
 public:
     explicit Parser(Lexer *parLexer);
 
+    void typeChecker(string oldType, string newType);
 };
 
 #endif //MYJC_PARSER_H

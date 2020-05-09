@@ -41,6 +41,7 @@ int Token::getLine() {
 
 Lexer::Lexer(char *arg) {
 
+    fileName = arg;
     file.open(arg);
 
     if(file){

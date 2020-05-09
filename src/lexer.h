@@ -43,6 +43,7 @@ class Lexer {
     vector<char> stream;
     vector<Token> tokens;
     vector<Token>::iterator tCursor;
+    string fileName;
 
     void scanner();
     void tokenizer();
@@ -51,6 +52,6 @@ public:
     Lexer(char *arg);
     Token getNextToken();
     Token peekNextToken();
-    string getFileName(){}
+    string getFileName(){return fileName;}
 };
 #endif //COMP2932_LEXER_H

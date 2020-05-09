@@ -3,14 +3,14 @@
 #include "symbolTable.h"
 
 void Table::addSymbol(Symbol symbol) {
-    symbol.relativeAddress = relativeAddress[symbol.kind];
-    this->relativeAddress[symbol.kind]++;
+    symbol.setRelAdd(relativeAddress[symbol.getKind()]);
+    this->relativeAddress[symbol.getKind()]++;
     table.push_back(symbol);
 }
 
 bool Table::findSymbol(string name) {
     for(auto& symbol : table){
-        if(symbol.name == name){
+        if(symbol.getName() == name){
             return true;
         }
     }
@@ -20,7 +20,7 @@ bool Table::findSymbol(string name) {
 
 Symbol* Table::editSymbol(string name) {
     for(auto& symbol : table){
-        if(symbol.name == name){
+        if(symbol.getName() == name){
             return &symbol;
         }
     }
@@ -65,9 +65,9 @@ void SymbolTable::display() {
             cout << "Local scope:" << endl;
         }
         cout << "-----------------------" << endl;
-        for(const auto& g : scope.table){
-            cout << "Name: " << g.name << ", Type: " << g.type << ", Kind: " << static_cast<Symbol::symbolKind>(g.kind)
-            << ", Address: " << g.relativeAddress << ", Init: "<< g.isInitialised << endl;
+        for(auto g : scope.table){
+            cout << "Name: " << g.getName() << ", Type: " << g.getType() << ", Kind: " << static_cast<Symbol::symbolKind>(g.getKind())
+            << ", Address: " << g.getRelAdd() << ", Init: "<< g.getInit() << endl;
         }
     }
 

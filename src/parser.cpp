@@ -15,6 +15,7 @@ Parser::Parser(Lexer *parLexer) {
 
     if(token.getLexeme() == "class"){
         classDeclare();
+        cout << lexer->getFileName() << endl;
         symbolTable.display();
     }
     else{
@@ -29,6 +30,8 @@ Parser::Parser(Lexer *parLexer) {
  * @param msg   a string containing the expected character/type/rule
  */
 void Parser::error(string errorType,string msg) {
+    cerr << lexer->getFileName() << endl;
+    symbolTable.display();
     if (errorType == "parser") {
         cerr << "Error occurred on line " << token.getLine() << " at or near '" << token.getLexeme() << "',";
         cerr << " expected " << msg << "." << endl;
@@ -37,7 +40,7 @@ void Parser::error(string errorType,string msg) {
     else if (errorType == "symbol"){
         cerr << "Error occurred on line " << token.getLine() << " at or near '" << token.getLexeme() << "', ";
         cerr << msg << "." << endl;
-//        exit(2); //todo: switch from warnings once external classes are included
+        exit(2); //todo: switch from warnings once external classes are included
     }
     else if (errorType == "custom"){
         cerr << "Error occurred on line " << token.getLine() << " at or near " << msg << "." << endl;;
@@ -46,19 +49,26 @@ void Parser::error(string errorType,string msg) {
 
 void Parser::setSymbolType(Symbol* symbol){
     //set symbol type todo: does this need to throw an error
-    if(symbolTable.global.findSymbol(token.getLexeme())) {
-        symbol->type = token.getLexeme();
-    }
+    symbol->setType(token.getLexeme());
 }
 
 void Parser::setSymbolName(Symbol* symbol, Table table){
     //check for duplicate declaration
     if(!table.findSymbol(token.getLexeme())){
         //add symbol name and add symbol to global scope
-        symbol->name = token.getLexeme();
+        symbol->setName(token.getLexeme());
     }
     else{
         error("symbol", "identifier is already declared");
+    }
+}
+
+void Parser::typeChecker(string oldType, string newType){
+    if(oldType == "any" || newType == "any"){
+
+    }
+    else if(oldType != newType){
+        error("symbol", "expression types "+oldType+" and "+newType+" do not match");
     }
 }
 
@@ -76,13 +86,14 @@ bool Parser::isOperand(){
  * Handles operand rule calls.
  * operand  integerConstant | identifier [.identifier ] [ [ expression ] | (expressionList ) ] | (expression) | stringLiteral | true | false | null | this
  */
-void Parser::operand(){
+string Parser::operand(){
 
     string symbolName;
+    string type;
 
     token = lexer->getNextToken();
     if(token.getType() == Token::Integer){
-
+        type = "int";
     }
     else if(token.getType() == Token::Identifier) {
 
@@ -91,6 +102,14 @@ void Parser::operand(){
         }
         else{
             symbolName = token.getLexeme();
+        }
+
+        if(symbolTable.findSymbol(token.getLexeme())){
+            //todo: fix type not setting
+            type = symbolTable.editSymbol(token.getLexeme())->getType();
+        }
+        else{
+            type = token.getLexeme();
         }
 
         token = lexer->peekNextToken();
@@ -139,7 +158,11 @@ void Parser::operand(){
             token = lexer->getNextToken();
             token = lexer->peekNextToken();
             if (isExpression()) {
-                expression();
+                //must result in int
+                string t = expression();
+                if( t != "int"){
+                    error("symbol", "array index is"+t+" should of type int");
+                }
             }
             else {
                 error("parser", "an expression");
@@ -167,7 +190,7 @@ void Parser::operand(){
         }
         else{
             if(symbolTable.findSymbol(symbolName)){
-                if(!symbolTable.editSymbol(symbolName)->isInitialised){
+                if(!symbolTable.editSymbol(symbolName)->getInit()){
                     error("custom", "'"+symbolName+"' is not initialised");
                 }
             }
@@ -176,7 +199,7 @@ void Parser::operand(){
     else if(token.getLexeme() == "("){
         token = lexer->peekNextToken();
         if(isExpression()) {
-            expression();
+            type = expression();
         }
         else{
             error("parser", "an expression");
@@ -191,23 +214,30 @@ void Parser::operand(){
         }
     }
     else if(token.getType() == Token::String){
-
+        type = "string";
     }
     else if(token.getLexeme() == "true"){
-
+        type = "boolean";
     }
     else if(token.getLexeme() == "false"){
-
+        type = "boolean";
     }
     else if(token.getLexeme() == "null"){
-
+        type = "point";
     }
     else if(token.getLexeme() == "this"){
-
+        if(symbolTable.findSymbol("this")){
+            type = symbolTable.editSymbol("this")->getType();
+        }
+        else{
+            type = "this";
+        }
     }
     else{
         error("parser", "an operand");
     }
+
+    return type;
 }
 
 /**
@@ -222,7 +252,9 @@ bool Parser::isFactor(){
  * Handles factor rule calls.
  * factor -> ( - | ~ | ε ) operand
  */
-void Parser::factor(){
+string Parser::factor(){
+
+    string type;
 
     token = lexer->peekNextToken();
     if(token.getLexeme() == "-" || token.getLexeme() == "~"){
@@ -231,11 +263,13 @@ void Parser::factor(){
     }
 
     if(isOperand()){
-        operand();
+        type = operand();
     }
     else{
         error("parser", "an operand");
     }
+
+    return type;
 }
 
 /**
@@ -250,11 +284,13 @@ bool Parser::isTerm(){
  * Handles term rule calls.
  * term -> factor { ( * | / ) factor }
  */
-void Parser::term(){
+string Parser::term(){
+
+    string type;
 
     token = lexer->peekNextToken();
     if(isFactor()){
-        factor();
+        type = factor();
     }
     else{
         error("parser", "a term");
@@ -264,14 +300,16 @@ void Parser::term(){
     while(token.getLexeme() == "*" || token.getLexeme() == "/"){
         token = lexer->getNextToken();
         token = lexer->peekNextToken();
-        if(isFactor()){
-            factor();
+        if(isFactor()) {
+            typeChecker(type, factor());
         }
         else{
             error("parser", "a factor");
         }
         token = lexer->peekNextToken();
     }
+
+    return type;
 
 }
 
@@ -288,11 +326,13 @@ bool Parser::isArithmeticExpression(){
  * Handles arithmetic expression rule calls.
  * ArithmeticExpression  term { ( + | - ) term }
  */
-void Parser::arithmeticExpression(){
+string Parser::arithmeticExpression(){
+
+    string type;
 
     token = lexer->peekNextToken();
     if(isTerm()){
-        term();
+        type = term();
     }
     else{
         error("parser", "a term");
@@ -303,13 +343,15 @@ void Parser::arithmeticExpression(){
         token = lexer->getNextToken();
         token = lexer->peekNextToken();
         if(isTerm()){
-            term();
+            typeChecker(type, term());
         }
         else{
             error("parser", "a term");
         }
         token = lexer->peekNextToken();
     }
+
+    return type;
 
 }
 
@@ -326,11 +368,13 @@ bool Parser::isRelationalExpression(){
  * Handles relational expression rule calls.
  * relationalExpression -> ArithmeticExpression { ( = | > | < ) ArithmeticExpression }
  */
-void Parser::relationalExpression(){
+string Parser::relationalExpression(){
+
+    string type;
 
     token = lexer->peekNextToken();
     if(isArithmeticExpression()){
-        arithmeticExpression();
+        type = arithmeticExpression();
     }
     else{
         error("parser", "an arithmetic expression");
@@ -342,13 +386,15 @@ void Parser::relationalExpression(){
         token = lexer->peekNextToken();
 
         if(isArithmeticExpression()){
-            arithmeticExpression();
+            typeChecker(type, arithmeticExpression());
         }
         else{
             error("parser", "an arithmetic expression");
         }
         token = lexer->peekNextToken();
     }
+
+    return type;
 }
 
 /**
@@ -363,11 +409,13 @@ bool Parser::isExpression(){
  * Handles expression rule calls.
  * expression -> relationalExpression { ( & | | ) relationalExpression }
  */
-void Parser::expression(){
+string Parser::expression(){
+
+    string type;
 
     token = lexer->peekNextToken();
     if(isRelationalExpression()){
-        relationalExpression();
+        type = relationalExpression();
     }
     else{
         error("parser", "a relational expression");
@@ -378,7 +426,7 @@ void Parser::expression(){
         token = lexer->getNextToken();
         token = lexer->peekNextToken();
         if(isRelationalExpression()){
-            relationalExpression();
+            typeChecker(type, relationalExpression());
         }
         else{
             error("parser", "a relational expression");
@@ -386,6 +434,7 @@ void Parser::expression(){
         token = lexer->peekNextToken();
     }
 
+    return type;
 }
 
 /**
@@ -740,7 +789,7 @@ void Parser::letStatement(){
     token = lexer->getNextToken();
     if(token.getLexeme() == ";"){
         if(symbolTable.findSymbol(symbolName)) {
-            symbolTable.editSymbol(symbolName)->isInitialised = true;
+            symbolTable.editSymbol(symbolName)->setInit(true);
         }
     }
     else{
@@ -755,7 +804,7 @@ void Parser::letStatement(){
 void Parser::varDeclareStatement(){
 
     Symbol symbol;
-    symbol.kind = Symbol::Local;
+    symbol.setKind(Symbol::Local);
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "var"){
@@ -877,18 +926,19 @@ void Parser::subroutineBody(){
 void Parser::paramList(){
 
     Symbol symbol;
-    symbol.kind = Symbol::Argument;
-    symbol.isInitialised = true;
+    symbol.setKind(Symbol::Argument);
+    symbol.setInit(true);
 
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
         type();
+        symbol.setType(token.getLexeme());
     }
 
     token = lexer->getNextToken();
     if(token.getType() == Token::Identifier){
         if(!symbolTable.local.findSymbol(token.getLexeme())){
-            symbol.name = token.getLexeme();
+            symbol.setName(token.getLexeme());
         }
         else {
             error("symbol", "identifier is already declared");
@@ -911,7 +961,7 @@ void Parser::paramList(){
         token = lexer->getNextToken();
         if(token.getType() == Token::Identifier){
             if(!symbolTable.local.findSymbol(token.getLexeme())){
-                symbol.name = token.getLexeme();
+                symbol.setName(token.getLexeme());
                 symbolTable.local.addSymbol(symbol);
             }
             else {
@@ -970,9 +1020,9 @@ void Parser::subroutineDeclare() {
     if(token.getLexeme() == "("){
         //add this variable as first argument
         Symbol _this;
-        _this.name = "this";
-        _this.type = symbol.name;
-        _this.kind = Symbol::Argument;
+        _this.setName("this");
+        _this.setType(symbol.getName());
+        _this.setKind(Symbol::Argument);
         symbolTable.local.addSymbol(_this);
     }
     else{
@@ -1046,11 +1096,11 @@ void Parser::classVarDeclare() {
     token = lexer->getNextToken();
     if(token.getLexeme() == "static"){
         //set symbol kind static
-        symbol.kind = Symbol::Static;
+        symbol.setKind(Symbol::Static);
     }
     else if(token.getLexeme() == "field"){
         //set symbol kind static
-        symbol.kind = Symbol::Field;
+        symbol.setKind(Symbol::Field);
     }
     else{
         error("parser", "'static' or 'field'");
