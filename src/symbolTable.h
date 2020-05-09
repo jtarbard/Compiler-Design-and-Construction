@@ -17,52 +17,45 @@ class Symbol {
 
 public:
 
-    enum symbolTypes {Type, Variable, Function};
-    enum symbolKind {Simple, Array, Struct};
+    enum symbolKind {Field, Static, Local, Argument};
 
     string name;
-    symbolTypes type;
-
-    struct {
-
-        struct {
-            symbolKind kind;
-            int size;
-        } type;
-
-        struct {
-            bool init;
-            string type;
-            int relAddress;
-            bool isConst;
-        } variable;
-
-        struct {
-            int numOfArgs;
-            string type;
-            int localVarSize;
-            vector<Symbol> arguments;
-        } function;
-
-    } attributes;
+    Symbol* type;
+    symbolKind kind;
+    int relativeAddress;
 };
 
-class SymbolTable {
-
-
-    //queue used for types that are identifiers and need to be evaluated at the end
-    //queue also used for identifiers of a class aka identifier.identifier where the second identifier need not
-    //be known. It is read at end of parser compilation and then each item is checked to see whether if it is in
-    //the symboltable, if not an error is thrown.
-
+class Table {
 public:
-
     vector<Symbol> table;
 
-    SymbolTable()= default;;
+    int relativeAddress[4] = {
+            0, //Field
+            0, //Static
+            0, //Local
+            0 //Argument
+    };
+
+    Table()= default;;
 
     void addSymbol(Symbol symbol);
+    Symbol* editSymbol(string name);
+
+    virtual bool findSymbol(string name);
+    void clearTable();
+
+};
+
+class SymbolTable : public Table {
+public:
+    SymbolTable();
+
+    Table global;
+    Table local;
+
     bool findSymbol(string name);
+    void display();
+
 };
 
 #endif //MYJC_SYMBOLTABLE_H

@@ -2,10 +2,17 @@
 class Custom {
     /** Comment test */
 
-    function int new(){
+    field int bruh;
+
+    function int new(int z){
         var int x;
-        let x = 5;
+        let x = Doc.title;
+        let y = 7;
         var int x;
+
+        if(z){
+
+        }
     }
 }
 

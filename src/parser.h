@@ -9,10 +9,12 @@
 #include "symbolTable.h"
 
 class Parser {
+    //object instances
     Token token;
     Lexer *lexer;
-    int ct; //current table
-    SymbolTable symbolTables[2];
+    SymbolTable symbolTable;
+    //general variables
+    int size;
     //Error handler
     void error(string errorType, string msg);
     //Jack Grammar
@@ -32,7 +34,7 @@ class Parser {
     void varDeclareStatement();
     void statement();
     void subroutineBody();
-    SymbolTable paramList();
+    void paramList();
     void subroutineDeclare();
     void type();
     void classVarDeclare();
@@ -48,6 +50,11 @@ class Parser {
     bool isExpression();
     bool isSubroutineCall();
     bool isStatement();
+
+    //Symbol Table Actions
+    void setSymbolType(Symbol* symbol);
+    void setSymbolName(Symbol* symbol, Table table);
+
 public:
     explicit Parser(Lexer *parLexer);
 
