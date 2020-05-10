@@ -13,6 +13,7 @@
 using namespace std;
 
 class SymbolTable;
+class Table;
 
 class Symbol {
 
@@ -24,12 +25,14 @@ public:
     void setKind(symbolKind pKind){kind = pKind;}
     void setInit(bool pInit){initialised = pInit;}
     void setRelAdd(int pRelAdd){relativeAddress = pRelAdd;}
+    void setArgs(vector<Symbol> args){arguments = std::move(args);};
 
     string getName(){return name;}
     string getType(){return type;}
     symbolKind getKind(){return kind;}
     bool getInit(){return initialised;}
     int getRelAdd(){return relativeAddress;}
+    vector<Symbol>getArgs(){return arguments;}
 
 private:
 
@@ -37,7 +40,7 @@ private:
     string type;
     symbolKind kind;
     int relativeAddress;
-
+    vector<Symbol> arguments;
     bool initialised = false;
 
 

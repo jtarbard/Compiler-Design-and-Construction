@@ -222,7 +222,7 @@ string Parser::operand(){
         }
     }
     else if(token.getType() == Token::String){
-        type = "string";
+        type = "char";
     }
     else if(token.getLexeme() == "true"){
         type = "boolean";
@@ -461,7 +461,7 @@ void Parser::returnStatement(){
 
     token = lexer->peekNextToken();
     if(isExpression()){
-        expression();
+        typeChecker(symbolTable.global.editSymbol(symbolTable.local.editSymbol("this")->getType())->getType(), expression());
     }
 
     token = lexer->getNextToken();
@@ -1047,6 +1047,13 @@ void Parser::subroutineDeclare() {
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
         paramList();
+        vector<Symbol> table;
+        for(auto s : symbolTable.local.table){
+            if(s.getKind() == Symbol::Argument){
+                table.push_back(s);
+            }
+        }
+        symbol.setArgs(table);
     }
 
     token = lexer->getNextToken();

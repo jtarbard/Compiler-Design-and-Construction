@@ -21,6 +21,8 @@ class Custom {
         if(z + b){
 
         }
+
+        return "a";
     }
 }
 
