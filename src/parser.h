@@ -26,6 +26,7 @@ class Parser {
     string expression();
     void returnStatement();
     void expressionList();
+    void expressionList(vector<Symbol> args);
     void subroutineCall();
     void doStatement();
     void whileStatement();

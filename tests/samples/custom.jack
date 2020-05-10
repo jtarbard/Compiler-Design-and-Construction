@@ -24,9 +24,14 @@ class Custom {
 
         return "a";
     }
+
+    function void Main(){
+        do new("j", 7);
+    }
 }
 
 class Doc {
     field char title;
+
 
 }

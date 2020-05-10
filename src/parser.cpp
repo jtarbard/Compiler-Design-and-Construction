@@ -473,8 +473,6 @@ void Parser::returnStatement(){
     }
 }
 
-
-
 /**
  * Handles expression list rule calls.
  * expressionList -> expression { , expression } | ε
@@ -501,6 +499,49 @@ void Parser::expressionList(){
 }
 
 /**
+ * Handles expression list rule calls.
+ * expressionList -> expression { , expression } | ε
+ */
+void Parser::expressionList(vector<Symbol> args){
+
+    int argCt = 1;
+    int limit = args.size();
+
+    token = lexer->peekNextToken();
+    if(isExpression()){
+        typeChecker(args.at(argCt).getType(), expression());
+        argCt++;
+    }
+
+    token = lexer->peekNextToken();
+    while(token.getLexeme() == ","){
+        token = lexer->getNextToken();
+        token = lexer->peekNextToken();
+        if(isExpression()){
+            if(argCt < limit) {
+                typeChecker(args.at(argCt).getType(), expression());
+                argCt++;
+            }
+            else{
+                expression();
+                argCt++;
+            }
+        }
+        else{
+            error("parser", "an expression");
+        }
+        token = lexer->peekNextToken();
+    }
+
+    if(argCt > limit){
+        error("symbol", "too many arguments provided");
+    }
+    else if(argCt < limit){
+        error("symbol", "too few arguments provided");
+    }
+}
+
+/**
  * Checks if token lexeme/type matches subroutine
  * call rule.
  * @return  a bool containing rule match result
@@ -515,9 +556,13 @@ bool Parser::isSubroutineCall(){
  */
 void Parser::subroutineCall(){
 
+    string subroutine = "";
+
     token = lexer->getNextToken();
     if(token.getType() == Token::Identifier){
-
+        if(symbolTable.findSymbol(token.getLexeme())){
+            subroutine = token.getLexeme();
+        }
     }
     else{
         error("parser", "an identifier");
@@ -528,7 +573,9 @@ void Parser::subroutineCall(){
         token = lexer->getNextToken();
         token = lexer->getNextToken();
         if(token.getType() == Token::Identifier){
-
+            if(symbolTable.findSymbol(token.getLexeme())){
+                subroutine = token.getLexeme();
+            }
         }
         else{
             error("parser", "an identifier");
@@ -543,7 +590,12 @@ void Parser::subroutineCall(){
         error("parser", "'('");
     }
 
-    expressionList();
+    if(subroutine == "") {
+        expressionList();
+    }
+    else {
+        expressionList(symbolTable.editSymbol(subroutine)->getArgs());
+    }
 
     token = lexer->getNextToken();
     if(token.getLexeme() == ")"){
@@ -1025,7 +1077,6 @@ void Parser::subroutineDeclare() {
     token = lexer->getNextToken();
     if(token.getType() ==  Token::Identifier){
         setSymbolName(&symbol, symbolTable.global); //set symbol name if not duplicate
-        symbolTable.global.addSymbol(symbol); //add symbol to class scope
     }
     else{
         error("parser", "an identifier");
@@ -1054,6 +1105,7 @@ void Parser::subroutineDeclare() {
             }
         }
         symbol.setArgs(table);
+        symbolTable.global.addSymbol(symbol); //add symbol to class scope
     }
 
     token = lexer->getNextToken();
