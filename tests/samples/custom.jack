@@ -19,14 +19,18 @@ class Custom {
         let arr[3] = 24;
 
         if(z + b){
-
+            let b = 3;
         }
 
-        return "a";
+        return x;
+        let x = 1;
+
     }
 
     function void Main(){
         do new("j", 7);
+
+        return;
     }
 }
 

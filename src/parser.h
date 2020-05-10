@@ -33,7 +33,7 @@ class Parser {
     void ifStatement();
     void letStatement();
     void varDeclareStatement();
-    void statement();
+    int statement();
     void subroutineBody();
     void paramList();
     void subroutineDeclare();

@@ -31,7 +31,6 @@ Parser::Parser(Lexer *parLexer) {
  */
 void Parser::error(string errorType,string msg) {
     cerr << lexer->getFileName() << endl;
-    symbolTable.display();
     if (errorType == "parser") {
         cerr << "Error occurred on line " << token.getLine() << " at or near '" << token.getLexeme() << "',";
         cerr << " expected " << msg << "." << endl;
@@ -636,6 +635,8 @@ void Parser::doStatement(){
  */
 void Parser::whileStatement(){
 
+    int isGoodPath = 0;
+
     token = lexer->getNextToken();
     if(token.getLexeme() == "while"){
 
@@ -678,7 +679,10 @@ void Parser::whileStatement(){
 
     token = lexer->peekNextToken();
     while(isStatement()){
-        statement();
+        if(isGoodPath == 1) {
+            error("symbol", "code be reachable");
+        }
+        isGoodPath = statement();
         token = lexer->peekNextToken();
     }
 
@@ -696,6 +700,8 @@ void Parser::whileStatement(){
  * ifStatement -> if ( expression ) { {statement} } [else { {statement} }]
  */
 void Parser::ifStatement(){
+
+    int isGoodPath = 0;
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "if"){
@@ -739,7 +745,10 @@ void Parser::ifStatement(){
 
     token = lexer->peekNextToken();
     while(isStatement()){
-        statement();
+        if(isGoodPath == 1) {
+            error("symbol", "code is not reachable");
+        }
+        isGoodPath = statement();
         token = lexer->peekNextToken();
     }
 
@@ -929,7 +938,7 @@ bool Parser::isStatement(){
  * Handles statement rule calls.
  * statement -> varDeclarStatement | letStatemnt | ifStatement | whileStatement | doStatement | returnStatemnt
  */
-void Parser::statement(){
+int Parser::statement(){
 
     token = lexer->peekNextToken();
     if(token.getLexeme() == "var"){
@@ -949,10 +958,13 @@ void Parser::statement(){
     }
     else if(token.getLexeme() == "return"){
         returnStatement();
+        return 1;
     }
     else{
         error("parser", "a statement");
     }
+
+    return false;
 }
 
 /**
@@ -960,6 +972,8 @@ void Parser::statement(){
  * subroutineBody -> { {statement} }
  */
 void Parser::subroutineBody(){
+
+    int lastPath = 0;
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "{"){
@@ -971,8 +985,12 @@ void Parser::subroutineBody(){
 
     token = lexer->peekNextToken();
     while(isStatement()){
-        statement();
+        if(lastPath == 1){
+            error("custom", "code may be unreachable");
+        }
+        lastPath = statement();
         token = lexer->peekNextToken();
+
     }
 
     token = lexer->getNextToken();
@@ -981,6 +999,10 @@ void Parser::subroutineBody(){
     }
     else{
         error("parser", "'}'");
+    }
+
+    if(lastPath == 0){
+        error("custom", "not all function paths return a value");
     }
 }
 
