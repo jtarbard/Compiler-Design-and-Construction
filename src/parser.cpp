@@ -597,7 +597,12 @@ void Parser::subroutineCall(){
         expressionList();
     }
     else {
-        expressionList(symbolTable.editSymbol(subroutine)->getArgs());
+        if(symbolTable.findSymbol(subroutine)) {
+            expressionList(symbolTable.editSymbol(subroutine)->getArgs());
+        }
+        else{
+            expressionList();
+        }
     }
 
     token = lexer->getNextToken();
@@ -1079,6 +1084,7 @@ void Parser::subroutineDeclare() {
     //create symbol for new subroutine
     Symbol symbol;
     symbol.setKind(Symbol::Function);
+    vector<Symbol> table;
 
     token = lexer->getNextToken();
     if(token.getLexeme() == "constructor" || token.getLexeme() == "function" || token.getLexeme() == "method"){
@@ -1124,15 +1130,15 @@ void Parser::subroutineDeclare() {
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
         paramList();
-        vector<Symbol> table;
         for(auto s : symbolTable.local.table){
             if(s.getKind() == Symbol::Argument){
                 table.push_back(s);
             }
         }
-        symbol.setArgs(table);
-        symbolTable.global.addSymbol(symbol); //add symbol to class scope
     }
+
+    symbol.setArgs(table);
+    symbolTable.global.addSymbol(symbol); //add symbol to class scope
 
     token = lexer->getNextToken();
     if(token.getLexeme() == ")"){
