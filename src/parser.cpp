@@ -30,19 +30,17 @@ Parser::Parser(Lexer *parLexer) {
  * @param msg   a string containing the expected character/type/rule
  */
 void Parser::error(string errorType,string msg) {
-    cerr << lexer->getFileName() << endl;
     if (errorType == "parser") {
-        cerr << "Error occurred on line " << token.getLine() << " at or near '" << token.getLexeme() << "',";
-        cerr << " expected " << msg << "." << endl;
+        cerr << lexer->getFileName() << "::" << token.getLine() << " Error: at or near '" << token.getLexeme() << "',"
+        << " expected " << msg << ".\n" << endl;
         exit(2);
     }
     else if (errorType == "symbol"){
-        cerr << "Error occurred on line " << token.getLine() << " at or near '" << token.getLexeme() << "', ";
-        cerr << msg << "." << endl;
-//        exit(2); //todo: switch from warnings once external classes are included
+        cerr << lexer->getFileName() << "::" << token.getLine() << " Warning: at or near '" << token.getLexeme()
+        << "', " << msg << ".\n" << endl;
     }
     else if (errorType == "custom"){
-        cerr << "Error occurred on line " << token.getLine() << " at or near " << msg << "." << endl;;
+        cerr << lexer->getFileName() << "::" << token.getLine() << " Warning: " << msg << ".\n" << endl;;
     }
 }
 
@@ -460,7 +458,13 @@ void Parser::returnStatement(){
 
     token = lexer->peekNextToken();
     if(isExpression()){
-        typeChecker(symbolTable.global.editSymbol(symbolTable.local.editSymbol("this")->getType())->getType(), expression());
+        if(symbolTable.global.findSymbol(symbolTable.local.editSymbol("this")->getType())) {
+            typeChecker(symbolTable.global.editSymbol(symbolTable.local.editSymbol("this")->getType())->getType(),
+                    expression());
+        }
+        else{
+            expression();
+        }
     }
 
     token = lexer->getNextToken();

@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+
 using namespace std;
 
 class Token {
@@ -43,15 +44,15 @@ class Lexer {
     vector<char> stream;
     vector<Token> tokens;
     vector<Token>::iterator tCursor;
-    string fileName;
+    string filename;
 
     void scanner();
     void tokenizer();
 
 public:
-    Lexer(char *arg);
+    Lexer(string arg);
     Token getNextToken();
     Token peekNextToken();
-    string getFileName(){return fileName;}
+    string getFileName(){return filename;}
 };
 #endif //COMP2932_LEXER_H

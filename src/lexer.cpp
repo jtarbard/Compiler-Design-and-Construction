@@ -39,9 +39,9 @@ int Token::getLine() {
  * @param arg   The filepath to the jack program to be compiled.
  */
 
-Lexer::Lexer(char *arg) {
+Lexer::Lexer(string arg) {
 
-    fileName = arg;
+    filename = arg;
     file.open(arg);
 
     if(file){
@@ -50,7 +50,7 @@ Lexer::Lexer(char *arg) {
         tCursor = tokens.begin();
     }
     else{ //file invalid
-        cerr << "Error Occurred: File could not be opened." << endl;
+        cerr << filename << "::" << " Error: File could not be opened." << endl;
         exit(1);
     }
 }
