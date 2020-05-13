@@ -15,8 +15,6 @@ Parser::Parser(Lexer *parLexer) {
 
     if(token.getLexeme() == "class"){
         classDeclare();
-        cout << lexer->getFileName() << endl;
-        symbolTable.display();
     }
     else{
         error("parser", "a class declaration");
@@ -32,15 +30,15 @@ Parser::Parser(Lexer *parLexer) {
 void Parser::error(string errorType,string msg) {
     if (errorType == "parser") {
         cerr << lexer->getFileName() << "::" << token.getLine() << " Error: at or near '" << token.getLexeme() << "',"
-        << " expected " << msg << ".\n" << endl;
+        << " expected " << msg << "." << endl;
         exit(2);
     }
     else if (errorType == "symbol"){
         cerr << lexer->getFileName() << "::" << token.getLine() << " Warning: at or near '" << token.getLexeme()
-        << "', " << msg << ".\n" << endl;
+        << "', " << msg << "." << endl;
     }
     else if (errorType == "custom"){
-        cerr << lexer->getFileName() << "::" << token.getLine() << " Warning: " << msg << ".\n" << endl;;
+        cerr << lexer->getFileName() << "::" << token.getLine() << " Warning: " << msg << "." << endl;;
     }
 }
 
