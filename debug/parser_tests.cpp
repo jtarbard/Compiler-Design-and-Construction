@@ -6,36 +6,36 @@
 #include "parser.h"
 
 TEST_CASE("Parser does not throw error on valid file - custom"){
-Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/tests/samples/custom.jack");
+Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/debug/samples/custom.jack");
 Parser parser(&lexer);
 }
 
 TEST_CASE("Parser does not throw error on valid file - parser"){
-Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/tests/samples/parser.jack");
+Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/debug/samples/parser.jack");
 Parser parser(&lexer);
 }
 
 TEST_CASE("Parser does not throw error on valid file - fraction"){
-Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/tests/samples/fraction.jack");
+Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/debug/samples/fraction.jack");
 Parser parser(&lexer);
 }
 
 TEST_CASE("Parser does not throw error on valid file - hello world"){
-Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/tests/samples/hello_world.jack");
+Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/debug/samples/hello_world.jack");
 Parser parser(&lexer);
 }
 
 TEST_CASE("Parser does not throw error on valid file - square"){
-Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/tests/samples/square.jack");
+Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/debug/samples/square.jack");
 Parser parser(&lexer);
 }
 
 TEST_CASE("Parser does not throw error on valid file - arrays"){
-Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/tests/samples/arrays.jack");
+Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/debug/samples/arrays.jack");
 Parser parser(&lexer);
 }
 
 TEST_CASE("Parser does not throw error on valid file - average"){
-Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/tests/samples/average.jack");
+Lexer lexer( "/home/sc18jt/CLionProjects/comp2932/debug/samples/average.jack");
 Parser parser(&lexer);
 }

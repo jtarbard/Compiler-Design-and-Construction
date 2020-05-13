@@ -1,35 +1,35 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 2.8)
 project(myjc)
 
 set(CMAKE_CXX_STANDARD 14)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    include_directories(src
-            tests)
+    include_directories(release
+            debug)
 
     add_executable(myjc
-            src/lexer.cpp
-            src/lexer.h
-            src/parser.cpp
-            src/parser.h
-            src/symbolTable.cpp
-            src/symbolTable.h
-            tests/catch_main.cpp
-            tests/lexer_tests.cpp
-            tests/parser_tests.cpp
+            release/lexer.cpp
+            release/lexer.h
+            release/parser.cpp
+            release/parser.h
+            release/symbolTable.cpp
+            release/symbolTable.h
+            debug/catch_main.cpp
+            debug/lexer_tests.cpp
+            debug/parser_tests.cpp
             )
 
 else()
-    include_directories(src)
+    include_directories(release)
 
     add_executable(myjc
-            src/lexer.cpp
-            src/lexer.h
-            src/parser.cpp
-            src/parser.h
-            src/symbolTable.cpp
-            src/symbolTable.h
-            src/main.cpp
-            src/main.h
+            release/lexer.cpp
+            release/lexer.h
+            release/parser.cpp
+            release/parser.h
+            release/symbolTable.cpp
+            release/symbolTable.h
+            release/main.cpp
+            release/main.h
             )
 endif()

@@ -5,7 +5,7 @@
 #include "lexer.h"
 
 TEST_CASE("Tokenizer recognises types.", "[Tokenizer]"){
-    Lexer lexer("/home/sc18jt/CLionProjects/comp2932/tests/samples/types.jack");
+    Lexer lexer("/home/sc18jt/CLionProjects/comp2932/debug/samples/types.jack");
 
     Token token = lexer.getNextToken();
     REQUIRE(token.getLexeme() == "class");
@@ -77,11 +77,11 @@ TEST_CASE("Tokenizer recognises types.", "[Tokenizer]"){
 }
 
 TEST_CASE("Tokenizer handles unexpected EOF.", "[Tokenizer]"){
-    Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/tests/samples/eof.jack");
+    Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/debug/samples/eof.jack");
 }
 
 TEST_CASE("Lexer getNextToken() produces expected tokens.", "[Lexer]"){
-    Lexer lexer("tests/samples/average.jack");
+    Lexer lexer("debug/samples/average.jack");
 
     Token token = lexer.getNextToken();
     REQUIRE(token.getLexeme() == "class");
@@ -121,7 +121,7 @@ TEST_CASE("Lexer getNextToken() produces expected tokens.", "[Lexer]"){
 }
 
 TEST_CASE("Lexer peekNextToken() produce expected tokens.", "[Lexer]"){
-    Lexer lexer("tests/samples/average.jack");
+    Lexer lexer("debug/samples/average.jack");
 
     Token token = lexer.peekNextToken();
     REQUIRE(token.getLexeme() == "class");

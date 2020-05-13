@@ -9746,20 +9746,20 @@ namespace Catch {
             = ExeName( config.processName )
             | Help( config.showHelp )
             | Opt( config.listTests )
-                ["-l"]["--list-tests"]
+                ["-l"]["--list-debug"]
                 ( "list all/matching test cases" )
             | Opt( config.listTags )
                 ["-t"]["--list-tags"]
                 ( "list all/matching tags" )
             | Opt( config.showSuccessfulTests )
                 ["-s"]["--success"]
-                ( "include successful tests in output" )
+                ( "include successful debug in output" )
             | Opt( config.shouldDebugBreak )
                 ["-b"]["--break"]
                 ( "break into debugger on failure" )
             | Opt( config.noThrow )
                 ["-e"]["--nothrow"]
-                ( "skip exception tests" )
+                ( "skip exception debug" )
             | Opt( config.showInvisibles )
                 ["-i"]["--invisibles"]
                 ( "show invisibles (tabs, newlines)" )
@@ -9830,7 +9830,7 @@ namespace Catch {
                 ["--benchmark-no-analysis"]
                 ( "perform only measurements; do not perform any analysis" )
 			| Arg( config.testsOrTags, "test name|pattern|tags" )
-                ( "which test or tests to use" );
+                ( "which test or debug to use" );
 
         return cli;
     }
@@ -13347,7 +13347,7 @@ namespace Catch {
 
             // Note that on unices only the lower 8 bits are usually used, clamping
             // the return value to 255 prevents false negative when some multiple
-            // of 256 tests has failed
+            // of 256 debug has failed
             return (std::min) (MaxExitCode, (std::max) (totals.error, static_cast<int>(totals.assertions.failed)));
         }
 #if !defined(CATCH_CONFIG_DISABLE_EXCEPTIONS)
@@ -13489,7 +13489,7 @@ namespace Catch {
             mutable std::ostream m_os;
         public:
             // Store the streambuf from cout up-front because
-            // cout may get redirected when running tests
+            // cout may get redirected when running debug
             CoutStream() : m_os( Catch::cout().rdbuf() ) {}
             ~CoutStream() override = default;
 
@@ -15527,14 +15527,14 @@ namespace {
 namespace Catch {
 namespace {
 // Colour, message variants:
-// - white: No tests ran.
+// - white: No debug ran.
 // -   red: Failed [both/all] N test cases, failed [both/all] M assertions.
 // - white: Passed [both/all] N test cases (no assertions).
-// -   red: Failed N tests cases, failed M assertions.
-// - green: Passed [both/all] N tests cases with M assertions.
+// -   red: Failed N debug cases, failed M assertions.
+// - green: Passed [both/all] N debug cases with M assertions.
 void printTotals(std::ostream& out, const Totals& totals) {
     if (totals.testCases.total() == 0) {
-        out << "No tests ran.";
+        out << "No debug ran.";
     } else if (totals.testCases.failed == totals.testCases.total()) {
         Colour colour(Colour::ResultError);
         const std::string qualify_assertions_failed =
@@ -16383,9 +16383,9 @@ struct SummaryColumn {
 
 void ConsoleReporter::printTotals( Totals const& totals ) {
     if (totals.testCases.total() == 0) {
-        stream << Colour(Colour::Warning) << "No tests ran\n";
+        stream << Colour(Colour::Warning) << "No debug ran\n";
     } else if (totals.assertions.total() > 0 && totals.testCases.allPassed()) {
-        stream << Colour(Colour::ResultSuccess) << "All tests passed";
+        stream << Colour(Colour::ResultSuccess) << "All debug passed";
         stream << " ("
             << pluralise(totals.assertions.passed, "assertion") << " in "
             << pluralise(totals.testCases.passed, "test case") << ')'
@@ -16578,7 +16578,7 @@ namespace Catch {
         xml.writeAttribute( "name", stats.groupInfo.name );
         xml.writeAttribute( "errors", unexpectedExceptions );
         xml.writeAttribute( "failures", stats.totals.assertions.failed-unexpectedExceptions );
-        xml.writeAttribute( "tests", stats.totals.assertions.total() );
+        xml.writeAttribute( "debug", stats.totals.assertions.total() );
         xml.writeAttribute( "hostname", "tbd" ); // !TBD
         if( m_config->showDurations() == ShowDurations::Never )
             xml.writeAttribute( "time", "" );
