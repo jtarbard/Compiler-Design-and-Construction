@@ -50,10 +50,11 @@ void Parser::error(string errorType,string msg) {
     }
 }
 
-void Parser::setSymbolType(Symbol* symbol){
-    symbol->setType(token.getLexeme());
-}
-
+/**
+ * Sets a symbols name if the name is not already in use.
+ * @param symbol
+ * @param table
+ */
 void Parser::setSymbolName(Symbol* symbol, Table table){
     //check for duplicate declaration
     if(!table.findSymbol(token.getLexeme())){
@@ -65,6 +66,12 @@ void Parser::setSymbolName(Symbol* symbol, Table table){
     }
 }
 
+/**
+ * Checks the types between two different strings.
+ * Ignores comparisons between custom types.
+ * @param t1
+ * @param t2
+ */
 void Parser::typeChecker(string t1, string t2){
     if(t1 != t2){
         if(t1 == "int" || t1 == "char" || t1 == "boolean"){
@@ -75,7 +82,11 @@ void Parser::typeChecker(string t1, string t2){
     }
 }
 
-
+/**
+ * Checks that the type of the array index is either int or a custom
+ * type that can be later resolved.
+ * @param t1
+ */
 void Parser::typeChecker(string t1){
     if(t1 == "char" || t1 == "boolean"){
         error("symbol", "array index is not of required type int");
@@ -916,7 +927,7 @@ void Parser::varDeclareStatement(){
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
         type();
-        setSymbolType(&symbol); //set symbol type
+        symbol.setType(token.getLexeme());
     }
 
     token = lexer->getNextToken();
@@ -1119,7 +1130,7 @@ void Parser::subroutineDeclare() {
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
         type();
-        setSymbolType(&symbol); //set the symbols type
+        symbol.setType(token.getLexeme());
     }
     else if(token.getLexeme() == "void"){
         token = lexer->getNextToken();
@@ -1236,7 +1247,7 @@ void Parser::classVarDeclare() {
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
         type();
-        setSymbolType(&symbol); //set the symbols type
+        symbol.setType(token.getLexeme());
     }
     else{
         error("parser", "a var type or identifier");

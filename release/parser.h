@@ -53,7 +53,6 @@ class Parser {
     bool isStatement();
 
     //Symbol Table Actions
-    void setSymbolType(Symbol* symbol);
     void setSymbolName(Symbol* symbol, Table table);
 
 public:
