@@ -20,7 +20,12 @@ TEST_CASE("Tokenizer recognises types.", "[Tokenizer]"){
     REQUIRE(token.getType() == 2);
 
     token = lexer.getNextToken();
-    REQUIRE(token.getLexeme() == "int");
+    token = lexer.getNextToken();
+    token = lexer.getNextToken();
+    token = lexer.getNextToken();
+
+    token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "let");
     REQUIRE(token.getType() == 0);
 
     token = lexer.getNextToken();
@@ -40,7 +45,12 @@ TEST_CASE("Tokenizer recognises types.", "[Tokenizer]"){
     REQUIRE(token.getType() == 2);
 
     token = lexer.getNextToken();
-    REQUIRE(token.getLexeme() == "char");
+    token = lexer.getNextToken();
+    token = lexer.getNextToken();
+    token = lexer.getNextToken();
+
+    token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "let");
     REQUIRE(token.getType() == 0);
 
     token = lexer.getNextToken();
@@ -60,7 +70,12 @@ TEST_CASE("Tokenizer recognises types.", "[Tokenizer]"){
     REQUIRE(token.getType() == 2);
 
     token = lexer.getNextToken();
-    REQUIRE(token.getLexeme() == "boolean");
+    token = lexer.getNextToken();
+    token = lexer.getNextToken();
+    token = lexer.getNextToken();
+
+    token = lexer.getNextToken();
+    REQUIRE(token.getLexeme() == "let");
     REQUIRE(token.getType() == 0);
 
     token = lexer.getNextToken();

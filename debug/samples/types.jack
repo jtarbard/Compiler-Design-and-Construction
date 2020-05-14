@@ -1,7 +1,10 @@
 // Comment test
 class Test {
     /** Comment test */
-    int x = 404;
-    char y = "false";
-    boolean z = true;
+    var int x;
+    let x = 404;
+    var char y;
+    let y = "false";
+    var boolean z;
+    let z = true;
 }

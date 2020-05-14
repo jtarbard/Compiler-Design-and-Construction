@@ -1,6 +1,7 @@
-// Comment test
+// Code commented out as the semantics is deliberately wrong
+// this was used for development purposes
 class Custom {
-    /** Comment test */
+    /**
 
     field int bruh;
 
@@ -32,10 +33,10 @@ class Custom {
 
         return;
     }
+
+    */
 }
 
 class Doc {
     field char title;
-
-
 }
