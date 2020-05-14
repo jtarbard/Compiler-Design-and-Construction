@@ -59,7 +59,7 @@ Lexer::Lexer(string arg) {
     }
     else{ //file invalid
         cerr << filename << "::" << " Error: File could not be opened." << endl;
-        exit(1);
+        exit(155);
     }
 }
 
@@ -179,7 +179,7 @@ void Lexer::tokenizer(){
         else{
             cerr << "Line: " << lnNum << " Error Occurred: Character of unsupported type." << endl;
             cout << "Character: " << *sItr << endl;
-            exit(1);
+            exit(155);
         }
 
         //STATE: Final state - create token
@@ -210,7 +210,7 @@ Token Lexer::getNextToken() {
     }
     else{
         cerr << "Error Occurred: No next token exists, reached end of token vector.";
-        exit(1);
+        exit(155);
     }
 }
 
@@ -225,7 +225,7 @@ Token Lexer::peekNextToken() {
     }
     else{
         cerr << "Error Occurred: No next token exists, reached end of token vector.";
-        exit(1);
+        exit(155);
     }
 }
 

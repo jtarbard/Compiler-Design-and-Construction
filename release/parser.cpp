@@ -39,7 +39,7 @@ void Parser::error(string errorType,string msg) {
     if (errorType == "parser") {
         cerr << lexer->getFileName() << "::" << token.getLine() << " Error: at or near '" << token.getLexeme() << "',"
         << " expected " << msg << "." << endl;
-        exit(2);
+        exit(255);
     }
     else if (errorType == "symbol"){
         cerr << lexer->getFileName() << "::" << token.getLine() << " Warning: at or near '" << token.getLexeme()
@@ -51,7 +51,6 @@ void Parser::error(string errorType,string msg) {
 }
 
 void Parser::setSymbolType(Symbol* symbol){
-    //set symbol type todo: does this need to throw an error
     symbol->setType(token.getLexeme());
 }
 
@@ -99,7 +98,7 @@ bool Parser::isOperand(){
  */
 string Parser::operand(){
 
-    string symbolName;
+    string symbolName = "";
     string type;
 
     token = lexer->getNextToken();
@@ -158,7 +157,13 @@ string Parser::operand(){
             else if (token.getLexeme() == "(") {
                 token = lexer->getNextToken();
                 token = lexer->peekNextToken();
-                expressionList();
+
+                if(symbolTable.findSymbol(symbolName) && symbolTable.editSymbol(symbolName)->getKind() == Symbol::Function) {
+                    expressionList(*symbolTable.editSymbol(symbolName)->getArgs());
+                }
+                else{
+                    expressionList();
+                }
 
                 token = lexer->getNextToken();
                 if (token.getLexeme() == ")") {
@@ -190,7 +195,13 @@ string Parser::operand(){
         else if (token.getLexeme() == "(") {
             token = lexer->getNextToken();
             token = lexer->peekNextToken();
-            expressionList();
+
+            if(symbolTable.findSymbol(symbolName) && symbolTable.editSymbol(symbolName)->getKind() == Symbol::Function) {
+                expressionList(*symbolTable.editSymbol(symbolName)->getArgs());
+            }
+            else{
+                expressionList();
+            }
 
             token = lexer->getNextToken();
             if (token.getLexeme() == ")") {
@@ -603,16 +614,11 @@ void Parser::subroutineCall(){
         error("parser", "'('");
     }
 
-    if(subroutine == "") {
-        expressionList();
+    if(symbolTable.findSymbol(subroutine) && symbolTable.editSymbol(subroutine)->getKind() == Symbol::Function) {
+        expressionList(*symbolTable.editSymbol(subroutine)->getArgs());
     }
-    else {
-        if(symbolTable.findSymbol(subroutine)) {
-            expressionList(*symbolTable.editSymbol(subroutine)->getArgs());
-        }
-        else{
-            expressionList();
-        }
+    else{
+        expressionList();
     }
 
     token = lexer->getNextToken();
