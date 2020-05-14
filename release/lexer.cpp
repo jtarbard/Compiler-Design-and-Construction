@@ -4,6 +4,11 @@
 
 #include "lexer.h"
 
+#define debug true
+#if DEBUG
+debug = true
+#endif
+
 void Token::setLexeme(string str) {
     this->lexeme = str;
 }
@@ -48,6 +53,9 @@ Lexer::Lexer(string arg) {
         scanner();
         tokenizer();
         tCursor = tokens.begin();
+        if(debug){
+            display();
+        }
     }
     else{ //file invalid
         cerr << filename << "::" << " Error: File could not be opened." << endl;
@@ -219,4 +227,19 @@ Token Lexer::peekNextToken() {
         cerr << "Error Occurred: No next token exists, reached end of token vector.";
         exit(1);
     }
+}
+
+void Lexer::display() {
+    ofstream log;
+    log.open("./debug/tokensLog.txt", std::ios::app);
+
+    log << filename << endl;
+    log << "-----------------------" << endl;
+
+    for(auto& token : tokens){
+        log << "Lexeme: " << token.getLexeme() << ", Type: " << token.getType() << ", Line: " << token.getLine() << endl;
+    }
+
+    log << endl << endl;
+    log.close();
 }

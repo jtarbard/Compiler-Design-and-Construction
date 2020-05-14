@@ -35,7 +35,7 @@ class Parser {
     void varDeclareStatement();
     int statement();
     void subroutineBody();
-    void paramList();
+    vector<Symbol> paramList();
     void subroutineDeclare();
     void type();
     void classVarDeclare();

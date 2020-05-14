@@ -5,7 +5,8 @@
 #ifndef COMP2932_MAIN_H
 #define COMP2932_MAIN_H
 
-class main {
+class Main {
+
 };
 
 

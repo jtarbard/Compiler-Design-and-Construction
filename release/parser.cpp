@@ -5,6 +5,11 @@
 #include "parser.h"
 #include "symbolTable.h"
 
+#define debug true
+#if DEBUG
+debug = true
+#endif
+
 /**
  * Initalises the recursive decent by checking for a class declariton
  * and calling class declare.
@@ -15,6 +20,9 @@ Parser::Parser(Lexer *parLexer) {
 
     if(token.getLexeme() == "class"){
         classDeclare();
+        if(debug) {
+            symbolTable.display(lexer->getFileName());
+        }
     }
     else{
         error("parser", "a class declaration");
@@ -456,9 +464,13 @@ void Parser::returnStatement(){
 
     token = lexer->peekNextToken();
     if(isExpression()){
-        if(symbolTable.global.findSymbol(symbolTable.local.editSymbol("this")->getType())) {
-            typeChecker(symbolTable.global.editSymbol(symbolTable.local.editSymbol("this")->getType())->getType(),
-                    expression());
+        if(symbolTable.local.findSymbol("this")) {
+            if (symbolTable.global.findSymbol(symbolTable.local.editSymbol("this")->getType())) {
+                typeChecker(symbolTable.global.editSymbol(symbolTable.local.editSymbol("this")->getType())->getType(),
+                            expression());
+            } else {
+                expression();
+            }
         }
         else{
             expression();
@@ -596,7 +608,7 @@ void Parser::subroutineCall(){
     }
     else {
         if(symbolTable.findSymbol(subroutine)) {
-            expressionList(symbolTable.editSymbol(subroutine)->getArgs());
+            expressionList(*symbolTable.editSymbol(subroutine)->getArgs());
         }
         else{
             expressionList();
@@ -1017,7 +1029,9 @@ void Parser::subroutineBody(){
  * Handles param list rule calls.
  * paramList -> type identifier {, type identifier} | ε
  */
-void Parser::paramList(){
+vector<Symbol> Parser::paramList(){
+
+    vector<Symbol> table;
 
     Symbol symbol;
     symbol.setKind(Symbol::Argument);
@@ -1033,6 +1047,7 @@ void Parser::paramList(){
     if(token.getType() == Token::Identifier){
         if(!symbolTable.local.findSymbol(token.getLexeme())){
             symbol.setName(token.getLexeme());
+            table.push_back(symbol);
         }
         else {
             error("symbol", "identifier is already declared");
@@ -1047,6 +1062,7 @@ void Parser::paramList(){
         token = lexer->peekNextToken();
         if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
             type();
+            symbol.setType(token.getLexeme());
         }
         else {
             error("parser", "a type");
@@ -1056,7 +1072,7 @@ void Parser::paramList(){
         if(token.getType() == Token::Identifier){
             if(!symbolTable.local.findSymbol(token.getLexeme())){
                 symbol.setName(token.getLexeme());
-                symbolTable.local.addSymbol(symbol);
+                table.push_back(symbol);
             }
             else {
                 error("symbol", "identifier is already declared");
@@ -1067,6 +1083,8 @@ void Parser::paramList(){
         }
         token = lexer->peekNextToken();
     }
+
+    return table;
 }
 
 /**
@@ -1080,7 +1098,7 @@ void Parser::subroutineDeclare() {
     }
 
     //create symbol for new subroutine
-    Symbol symbol;
+    Symbol symbol, _this;
     symbol.setKind(Symbol::Function);
     vector<Symbol> table;
 
@@ -1115,11 +1133,9 @@ void Parser::subroutineDeclare() {
     token = lexer->getNextToken();
     if(token.getLexeme() == "("){
         //add this variable as first argument
-        Symbol _this;
         _this.setName("this");
         _this.setType(symbol.getName());
         _this.setKind(Symbol::Argument);
-        symbolTable.local.addSymbol(_this);
     }
     else{
         error("parser", "'('");
@@ -1127,14 +1143,15 @@ void Parser::subroutineDeclare() {
 
     token = lexer->peekNextToken();
     if(token.getLexeme() == "int" || token.getLexeme() == "char" || token.getLexeme() == "boolean" || token.getType() == Token::Identifier){
-        paramList();
-        for(auto s : symbolTable.local.table){
-            if(s.getKind() == Symbol::Argument){
-                table.push_back(s);
-            }
-        }
+        table = paramList();
+//        for(auto s : symbolTable.local.table){
+//            if(s.getKind() == Symbol::Argument){
+//                table.push_back(s);
+//            }
+//        }
     }
 
+    table.insert(table.begin(), _this);
     symbol.setArgs(table);
     symbolTable.global.addSymbol(symbol); //add symbol to class scope
 

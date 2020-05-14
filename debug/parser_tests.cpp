@@ -2,10 +2,15 @@
 // Created by sc18jt on 04/03/2020.
 //
 #include "catch2/catch.hpp"
+#include "main.h"
 #include "lexer.h"
 #include "parser.h"
 
 TEST_CASE("Parser does not throw error on valid file - custom"){
+//debug file reset
+remove("debug/symbolTableLog.txt");
+remove("debug/tokensLog.txt");
+
 Lexer lexer((char *) "/home/sc18jt/CLionProjects/comp2932/debug/samples/custom.jack");
 Parser parser(&lexer);
 }

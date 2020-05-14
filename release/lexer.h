@@ -54,5 +54,6 @@ public:
     Token getNextToken();
     Token peekNextToken();
     string getFileName(){return filename;}
+    void display();
 };
 #endif //COMP2932_LEXER_H

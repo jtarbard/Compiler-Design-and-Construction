@@ -32,7 +32,7 @@ public:
     symbolKind getKind(){return kind;}
     bool getInit(){return initialised;}
     int getRelAdd(){return relativeAddress;}
-    vector<Symbol>getArgs(){return arguments;}
+    vector<Symbol>* getArgs(){return &arguments;}
 
 private:
 
@@ -76,7 +76,7 @@ public:
     Table local;
 
     bool findSymbol(string name);
-    void display();
+    void display(string file);
 
     Symbol *editSymbol(string name);
 };
